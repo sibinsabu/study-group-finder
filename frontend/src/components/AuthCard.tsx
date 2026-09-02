@@ -19,7 +19,9 @@ export const AuthCard: React.FC<AuthCardProps> = ({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -29,6 +31,14 @@ export const AuthCard: React.FC<AuthCardProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
+
+    if (isRegisterMode && password !== confirmPassword) {
+      setStatusMessage({
+        type: 'error',
+        text: 'Passwords do not match. Please re-enter your password correctly.'
+      });
+      return;
+    }
 
     setIsLoading(true);
     setStatusMessage(null);
@@ -181,6 +191,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
               onClick={() => {
                 setIsRegisterMode(!isRegisterMode);
                 setStatusMessage(null);
+                setConfirmPassword('');
               }}
               style={{
                 background: 'none',
@@ -243,6 +254,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
               onClick={() => {
                 setIsRegisterMode(false);
                 setStatusMessage(null);
+                setConfirmPassword('');
               }}
               style={{
                 flex: 1,
@@ -266,6 +278,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
               onClick={() => {
                 setIsRegisterMode(true);
                 setStatusMessage(null);
+                setConfirmPassword('');
               }}
               style={{
                 flex: 1,
@@ -470,6 +483,69 @@ export const AuthCard: React.FC<AuthCardProps> = ({
                 </button>
               </div>
             </div>
+
+            {/* Re-enter Password Input (Registration Mode Only) */}
+            {isRegisterMode && (
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: '#334155',
+                  marginBottom: '6px'
+                }}>
+                  Re-enter Password
+                </label>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: '#f8fafc',
+                  border: `1px solid ${confirmPassword && password !== confirmPassword ? '#f87171' : '#cbd5e1'}`,
+                  borderRadius: '10px',
+                  padding: '10px 14px'
+                }}>
+                  <Lock size={16} color="#64748b" style={{ marginRight: '10px', flexShrink: 0 }} />
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    placeholder="Re-enter your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
+                    style={{
+                      border: 'none',
+                      background: 'transparent',
+                      width: '100%',
+                      fontSize: '14px',
+                      color: '#0f172a',
+                      outline: 'none',
+                      fontFamily: 'inherit'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: '0',
+                      cursor: 'pointer',
+                      color: '#64748b',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {confirmPassword && password !== confirmPassword && (
+                  <span style={{ fontSize: '12px', color: '#ef4444', marginTop: '4px', display: 'block', fontWeight: 500 }}>
+                    Passwords do not match
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* Primary Action Button */}
             <button

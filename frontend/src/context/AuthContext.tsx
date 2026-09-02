@@ -2,7 +2,12 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authApi } from '../api/authApi';
 import type { UserDto, AuthResponse } from '../api/authApi';
 
-export type User = UserDto;
+export type User = UserDto & {
+  major?: string;
+  year?: string;
+  bio?: string;
+  interests?: string[];
+};
 
 interface AuthContextType {
   user: User | null;
@@ -10,6 +15,7 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<AuthResponse>;
   register: (name: string, email: string, pass: string, university?: string) => Promise<AuthResponse>;
   logout: () => void;
+  updateProfile: (updatedData: Partial<User>) => void;
   joinGroup: (groupId: string) => Promise<void>;
   leaveGroup: (groupId: string) => Promise<void>;
 }
@@ -55,6 +61,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('study_user');
   };
 
+  const updateProfile = (updatedData: Partial<User>) => {
+    if (!user) return;
+    const updated = { ...user, ...updatedData };
+    setUser(updated);
+    localStorage.setItem('study_user', JSON.stringify(updated));
+  };
+
   const joinGroup = async (groupId: string) => {
     if (!user) return;
     if (!user.joinedGroups.includes(groupId)) {
@@ -80,6 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       login,
       register,
       logout,
+      updateProfile,
       joinGroup,
       leaveGroup
     }}>

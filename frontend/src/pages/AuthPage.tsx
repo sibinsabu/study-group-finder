@@ -1,120 +1,101 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { Navbar } from '../components/Navbar';
+import { FindGroupPanel } from '../components/FindGroupPanel';
 import { AuthCard } from '../components/AuthCard';
+import { ShieldCheck, Sparkles } from 'lucide-react';
 
 export const AuthPage: React.FC = () => {
   const location = useLocation();
   const isRegister = location.pathname.includes('register');
 
   return (
-    <div className="grid-bg" style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      padding: '24px 16px'
-    }}>
-      {/* Top Navigation */}
-      <header style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '12px 24px'
-      }}>
-        <Link
-          to="/"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            textDecoration: 'none',
-            color: '#0b1a30',
-            fontWeight: 800,
-            fontSize: '22px',
-            fontFamily: "'Outfit', sans-serif"
-          }}
-        >
-          <span>STUDYSPHERE</span>
-          <span style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            backgroundColor: '#eb5757',
-            display: 'inline-block'
-          }} />
-        </Link>
+    <div className="grid-bg" style={{ minHeight: '100vh', padding: '16px 0 32px 0' }}>
+      <main className="app-viewport">
+        {/* Top Navbar */}
+        <Navbar activeTab={isRegister ? 'Register' : 'Sign In'} />
 
-        <Link
-          to="/"
-          style={{
+        {/* Auth Hero Section */}
+        <section style={{
+          padding: '48px 24px 60px 24px',
+          background: 'linear-gradient(180deg, #f8fafc 0%, #ffffff 100%)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          position: 'relative'
+        }}>
+          {/* Subtle Grid Backdrop */}
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `
+              linear-gradient(to right, rgba(203, 213, 225, 0.35) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(203, 213, 225, 0.35) 1px, transparent 1px)
+            `,
+            backgroundSize: '48px 48px',
+            opacity: 0.7,
+            pointerEvents: 'none'
+          }} />
+
+          {/* Heading Tag */}
+          <div style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
-            fontSize: '14px',
-            fontWeight: 600,
-            color: '#475569',
-            textDecoration: 'none',
-            padding: '8px 16px',
+            padding: '4px 14px',
             borderRadius: '9999px',
-            background: '#ffffff',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
-            transition: 'all 0.2s'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.color = '#0b1a30';
-            e.currentTarget.style.borderColor = '#0b1a30';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.color = '#475569';
-            e.currentTarget.style.borderColor = '#e2e8f0';
-          }}
-        >
-          <ArrowLeft size={16} />
-          Back to Home
-        </Link>
-      </header>
+            background: 'rgba(235, 87, 87, 0.1)',
+            color: '#eb5757',
+            border: '1px solid rgba(235, 87, 87, 0.25)',
+            fontSize: '12px',
+            fontWeight: 700,
+            letterSpacing: '0.6px',
+            textTransform: 'uppercase',
+            marginBottom: '16px',
+            position: 'relative',
+            zIndex: 2
+          }}>
+            <Sparkles size={14} />
+            <span>SECURE UNIVERSITY PEER ACCESS</span>
+          </div>
 
-      {/* Main Centered Card Container */}
-      <main style={{
-        maxWidth: '1200px',
-        margin: '20px auto',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '16px'
-      }}>
-        <AuthCard initialMode={isRegister ? 'register' : 'login'} />
-        
-        {/* University trust badge footer */}
-        <div style={{
-          marginTop: '24px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          color: '#64748b',
-          fontSize: '13px'
-        }}>
-          <ShieldCheck size={16} color="#10b981" />
-          <span>Verified University Email Network • Peer Protection Standard</span>
-        </div>
+          <h1 style={{
+            fontSize: '32px',
+            fontWeight: 800,
+            color: '#0b1a30',
+            textAlign: 'center',
+            marginBottom: '28px',
+            position: 'relative',
+            zIndex: 2,
+            letterSpacing: '-0.5px'
+          }}>
+            {isRegister ? 'Create Your Verified Student Account' : 'Welcome Back to StudySphere'}
+          </h1>
+
+          {/* Main Auth Card Container */}
+          <div style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: '840px' }}>
+            <AuthCard initialMode={isRegister ? 'register' : 'login'} />
+          </div>
+
+          {/* University Trust Badge Footer */}
+          <div style={{
+            marginTop: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            color: '#64748b',
+            fontSize: '13px',
+            position: 'relative',
+            zIndex: 2
+          }}>
+            <ShieldCheck size={16} color="#10b981" />
+            <span>Verified University Email Protection • Spring Boot Security & MongoDB</span>
+          </div>
+        </section>
+
+        {/* Dark Navy Footer */}
+        <FindGroupPanel />
       </main>
-
-      {/* Footer */}
-      <footer style={{
-        textAlign: 'center',
-        fontSize: '13px',
-        color: '#94a3b8',
-        padding: '16px'
-      }}>
-        © 2026 StudySphere Study Group Finder. All rights reserved.
-      </footer>
     </div>
   );
 };

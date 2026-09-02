@@ -1,21 +1,40 @@
-import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { LogOut, ArrowLeft, Hammer, CheckCircle2, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Navbar } from '../components/Navbar';
+import { FindGroupPanel } from '../components/FindGroupPanel';
+import { ViewGroupModal } from '../components/ViewGroupModal';
 import { useAuth } from '../context/AuthContext';
+import type { StudyGroup } from '../data/mockData';
+import { INITIAL_STUDY_GROUPS } from '../data/mockData';
+import { Clock, Plus, Users, X, Sparkles, CheckCircle2, Eye } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [groups, setGroups] = useState<StudyGroup[]>(() => {
+    const saved = localStorage.getItem('studysphere_groups');
+    return saved ? JSON.parse(saved) : INITIAL_STUDY_GROUPS;
+  });
+
+  // Selected Group for "View Group" modal
+  const [viewingGroup, setViewingGroup] = useState<StudyGroup | null>(null);
+
+  // Modal State for Create Group
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newSubject, setNewSubject] = useState('');
+  const [newCategory, setNewCategory] = useState('Computer Science');
+  const [newSchedule, setNewSchedule] = useState('Tue & Thu • 6:00 PM');
+  const [newMaxMembers, setNewMaxMembers] = useState(6);
+  const [newDescription, setNewDescription] = useState('');
+
+  // Unauthenticated Fallback
   if (!isAuthenticated || !user) {
     return (
-      <div className="grid-bg" style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px'
-      }}>
+      <div className="grid-bg" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
         <div style={{
           background: '#ffffff',
           borderRadius: '24px',
@@ -26,10 +45,10 @@ export const DashboardPage: React.FC = () => {
           boxShadow: '0 25px 50px -12px rgba(11, 26, 48, 0.15)',
           border: '1px solid #e2e8f0'
         }}>
-          <h2 style={{ color: '#0b1a30', marginBottom: '12px', fontSize: '24px', fontWeight: 700 }}>
+          <h2 style={{ color: '#0b1a30', marginBottom: '8px', fontSize: '22px', fontWeight: 800 }}>
             Session Required
           </h2>
-          <p style={{ color: '#64748b', marginBottom: '24px', fontSize: '15px' }}>
+          <p style={{ color: '#64748b', marginBottom: '24px', fontSize: '14px' }}>
             Please log in or register to access the student dashboard.
           </p>
           <button
@@ -45,277 +64,479 @@ export const DashboardPage: React.FC = () => {
     );
   }
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  // Toggle Join
+  const handleToggleJoin = (id: string) => {
+    const updated = groups.map(g => {
+      if (g.id === id) {
+        const isJoined = !g.isJoined;
+        return {
+          ...g,
+          isJoined,
+          membersCount: isJoined ? g.membersCount + 1 : Math.max(1, g.membersCount - 1)
+        };
+      }
+      return g;
+    });
+    setGroups(updated);
+    localStorage.setItem('studysphere_groups', JSON.stringify(updated));
+
+    // Also update currently open modal if any
+    if (viewingGroup && viewingGroup.id === id) {
+      setViewingGroup(prev => prev ? {
+        ...prev,
+        isJoined: !prev.isJoined,
+        membersCount: !prev.isJoined ? prev.membersCount + 1 : Math.max(1, prev.membersCount - 1)
+      } : null);
+    }
   };
+
+  // Create New Group
+  const handleCreateGroup = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !newSubject.trim()) return;
+
+    const newGroup: StudyGroup = {
+      id: `grp-${Date.now()}`,
+      title: newTitle.trim(),
+      subject: newSubject.trim(),
+      category: newCategory,
+      university: user.university || 'University Network',
+      schedule: newSchedule,
+      membersCount: 1,
+      maxMembers: Number(newMaxMembers) || 6,
+      description: newDescription.trim() || 'Collaborative course study group.',
+      isJoined: true,
+      topics: ['Course Fundamentals', 'Midterm Prep', 'Homework Discussions'],
+      meetingRoom: 'Room #Live (Online Virtual Room)'
+    };
+
+    const updated = [newGroup, ...groups];
+    setGroups(updated);
+    localStorage.setItem('studysphere_groups', JSON.stringify(updated));
+    setCreateModalOpen(false);
+    setNewTitle('');
+    setNewSubject('');
+    setNewDescription('');
+  };
+
+  const categories = ['All', 'My Groups', 'Computer Science', 'Mathematics', 'AI & Data Science', 'Chemistry', 'Business'];
+
+  const filteredGroups = groups.filter(grp => {
+    const matchesCategory = 
+      selectedCategory === 'All' ? true :
+      selectedCategory === 'My Groups' ? grp.isJoined :
+      grp.category === selectedCategory;
+    const matchesSearch = !searchTerm ||
+      grp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      grp.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      grp.university.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="grid-bg" style={{ minHeight: '100vh', padding: '16px 0 32px 0' }}>
-      <div className="app-viewport">
-        {/* Top Header Bar */}
-        <header style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '20px 48px',
-          background: '#ffffff',
-          borderBottom: '1px solid #f1f5f9'
+      <main className="app-viewport">
+        {/* Navigation Bar */}
+        <Navbar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          activeTab="Study Groups"
+        />
+
+        {/* Dashboard Welcome Header */}
+        <section style={{
+          padding: '36px 48px',
+          background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)',
+          borderBottom: '1px solid #e2e8f0',
+          position: 'relative'
         }}>
-          {/* Brand */}
-          <Link
-            to="/"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              textDecoration: 'none',
-              fontFamily: "'Outfit', sans-serif",
-              fontWeight: 800,
-              fontSize: '24px',
-              color: '#0b1a30'
-            }}
-          >
-            <span>STUDYSPHERE</span>
-            <span style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: '#eb5757',
-              display: 'inline-block'
-            }} />
-          </Link>
-
-          {/* Action Links */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Link
-              to="/"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#475569',
-                textDecoration: 'none',
-                padding: '8px 16px',
-                borderRadius: '9999px',
-                background: '#f8fafc',
-                border: '1px solid #e2e8f0',
-                transition: 'all 0.2s'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.color = '#0b1a30';
-                e.currentTarget.style.borderColor = '#0b1a30';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.color = '#475569';
-                e.currentTarget.style.borderColor = '#e2e8f0';
-              }}
-            >
-              <ArrowLeft size={16} />
-              Explore Landing Page
-            </Link>
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 18px',
-                borderRadius: '9999px',
-                background: '#ffffff',
-                border: '1px solid #fecaca',
-                color: '#ef4444',
-                fontSize: '14px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                transition: 'all 0.2s'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = '#fef2f2';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = '#ffffff';
-              }}
-            >
-              <LogOut size={15} />
-              Sign Out
-            </button>
-          </div>
-        </header>
-
-        {/* Main Content Area */}
-        <main style={{
-          padding: '60px 48px 80px 48px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center'
-        }}>
-          {/* Under Development Pill */}
           <div style={{
-            display: 'inline-flex',
+            display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            gap: '8px',
-            padding: '6px 18px',
-            borderRadius: '9999px',
-            background: 'rgba(235, 87, 87, 0.1)',
-            color: '#eb5757',
-            border: '1px solid rgba(235, 87, 87, 0.25)',
-            fontSize: '13px',
-            fontWeight: 700,
-            letterSpacing: '0.6px',
-            textTransform: 'uppercase',
-            marginBottom: '24px'
+            flexWrap: 'wrap',
+            gap: '20px'
           }}>
-            <Hammer size={16} />
-            <span>Dashboard Under Development</span>
-          </div>
-
-          {/* Greeting Headline */}
-          <h1 style={{
-            fontFamily: "'Plus Jakarta Sans', var(--font-heading), sans-serif",
-            fontSize: '44px',
-            fontWeight: 800,
-            color: '#0b1a30',
-            lineHeight: 1.15,
-            letterSpacing: '-1px',
-            marginBottom: '16px',
-            maxWidth: '680px'
-          }}>
-            Welcome, {user.name}! 👋
-          </h1>
-
-          <p style={{
-            fontSize: '17px',
-            color: '#64748b',
-            lineHeight: 1.6,
-            maxWidth: '560px',
-            marginBottom: '40px'
-          }}>
-            Your student account is authenticated and connected to MongoDB. The custom dashboard layout and collaborative workspace tools are currently under active development.
-          </p>
-
-          {/* Authenticated Account Profile Card */}
-          <div style={{
-            background: '#ffffff',
-            borderRadius: '24px',
-            border: '1px solid #e2e8f0',
-            padding: '32px 40px',
-            maxWidth: '520px',
-            width: '100%',
-            boxShadow: '0 20px 45px -10px rgba(11, 26, 48, 0.08)',
-            marginBottom: '36px',
-            textAlign: 'left'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-              <img
-                src={user.avatar}
-                alt={user.name}
-                style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '50%',
-                  objectFit: 'cover',
-                  border: '3px solid #f1f5f9',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
-                }}
-              />
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0b1a30' }}>
-                    {user.name}
-                  </h3>
-                  <CheckCircle2 size={16} color="#10b981" />
-                </div>
-                <p style={{ fontSize: '14px', color: '#64748b' }}>{user.email}</p>
+            <div>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                color: '#eb5757',
+                fontWeight: 700,
+                fontSize: '12px',
+                letterSpacing: '0.8px',
+                textTransform: 'uppercase',
+                marginBottom: '8px'
+              }}>
+                <Sparkles size={14} />
+                <span>STUDENT DASHBOARD • {user.university}</span>
               </div>
+              <h1 style={{ fontSize: '32px', fontWeight: 800, color: '#0b1a30', marginBottom: '6px' }}>
+                Welcome back, {user.name}! 👋
+              </h1>
+              <p style={{ fontSize: '14px', color: '#64748b' }}>
+                Find and collaborate with peers in your course study groups.
+              </p>
             </div>
-
-            <div style={{
-              background: '#f8fafc',
-              borderRadius: '14px',
-              padding: '16px 20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '10px',
-              fontSize: '13px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#64748b', fontWeight: 500 }}>University Affiliation:</span>
-                <span style={{ color: '#0b1a30', fontWeight: 700 }}>{user.university}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#64748b', fontWeight: 500 }}>Account Status:</span>
-                <span style={{ color: '#10b981', fontWeight: 700 }}>Verified Student (MongoDB)</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#64748b', fontWeight: 500 }}>Database ID:</span>
-                <span style={{ color: '#64748b', fontFamily: 'monospace', fontSize: '12px' }}>{user.id}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Action CTAs */}
-          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Link
-              to="/"
-              className="btn-primary"
-              style={{
-                textDecoration: 'none',
-                padding: '12px 28px',
-                fontSize: '15px'
-              }}
-            >
-              Browse Study Circles
-            </Link>
 
             <button
               type="button"
-              onClick={handleLogout}
-              style={{
-                padding: '12px 24px',
-                borderRadius: '9999px',
-                background: '#ffffff',
-                border: '1px solid #cbd5e1',
-                color: '#334155',
-                fontSize: '15px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                transition: 'all 0.2s'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.borderColor = '#0b1a30';
-                e.currentTarget.style.backgroundColor = '#f8fafc';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.borderColor = '#cbd5e1';
-                e.currentTarget.style.backgroundColor = '#ffffff';
-              }}
+              onClick={() => setCreateModalOpen(true)}
+              className="btn-primary"
+              style={{ padding: '10px 22px', fontSize: '14px' }}
             >
-              Sign Out
+              <Plus size={16} />
+              Create Study Group
             </button>
           </div>
+        </section>
 
-          {/* Footer note */}
+        {/* Study Groups List Section */}
+        <section style={{ padding: '36px 48px', background: '#ffffff' }}>
+          {/* Category Filter Chips */}
           <div style={{
-            marginTop: '48px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '28px',
+            flexWrap: 'wrap',
+            gap: '12px'
+          }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`filter-chip ${selectedCategory === cat ? 'active' : ''}`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>
+              Showing {filteredGroups.length} Groups
+            </span>
+          </div>
+
+          {/* Groups Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+            gap: '20px'
+          }}>
+            {filteredGroups.map((group) => (
+              <div key={group.id} className="study-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <span style={{
+                    padding: '4px 10px',
+                    borderRadius: '9999px',
+                    backgroundColor: '#f1f5f9',
+                    color: '#0b1a30',
+                    fontSize: '12px',
+                    fontWeight: 700
+                  }}>
+                    {group.category}
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#64748b' }}>
+                    <Clock size={13} />
+                    {group.schedule}
+                  </span>
+                </div>
+
+                <h3
+                  onClick={() => setViewingGroup(group)}
+                  style={{
+                    fontSize: '17px',
+                    fontWeight: 700,
+                    color: '#0b1a30',
+                    marginBottom: '4px',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.color = '#0284c7')}
+                  onMouseOut={(e) => (e.currentTarget.style.color = '#0b1a30')}
+                >
+                  {group.title}
+                </h3>
+                <p style={{ fontSize: '13px', color: '#0284c7', fontWeight: 600, marginBottom: '8px' }}>
+                  {group.subject} • {group.university}
+                </p>
+                <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.5, marginBottom: '16px', minHeight: '38px' }}>
+                  {group.description}
+                </p>
+
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingTop: '14px',
+                  borderTop: '1px solid #f1f5f9',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+                    <Users size={15} />
+                    <span>{group.membersCount}/{group.maxMembers}</span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setViewingGroup(group)}
+                      className="btn-outline"
+                      style={{
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        borderRadius: '9999px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <Eye size={13} />
+                      View
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleToggleJoin(group.id)}
+                      style={{
+                        padding: '6px 16px',
+                        borderRadius: '9999px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        border: '1px solid',
+                        borderColor: group.isJoined ? '#10b981' : '#0b1a30',
+                        backgroundColor: group.isJoined ? '#ecfdf5' : '#0b1a30',
+                        color: group.isJoined ? '#065f46' : '#ffffff',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {group.isJoined ? (
+                        <>
+                          <CheckCircle2 size={13} color="#10b981" />
+                          <span>Joined</span>
+                        </>
+                      ) : (
+                        'Join'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Modal: View Group Details */}
+        <ViewGroupModal
+          group={viewingGroup}
+          onClose={() => setViewingGroup(null)}
+          onToggleJoin={handleToggleJoin}
+        />
+
+        {/* Modal: Create Study Group */}
+        {createModalOpen && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(11, 26, 48, 0.65)',
+            backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            color: '#94a3b8',
-            fontSize: '13px'
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
           }}>
-            <ShieldCheck size={16} color="#10b981" />
-            <span>StudySphere Secure Learning Platform • Spring Boot & MongoDB</span>
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '24px',
+              padding: '32px',
+              maxWidth: '480px',
+              width: '100%',
+              boxShadow: '0 25px 50px -12px rgba(11, 26, 48, 0.3)',
+              position: 'relative'
+            }}>
+              <button
+                type="button"
+                onClick={() => setCreateModalOpen(false)}
+                style={{
+                  position: 'absolute',
+                  top: '18px',
+                  right: '18px',
+                  background: '#f1f5f9',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#64748b'
+                }}
+              >
+                <X size={16} />
+              </button>
+
+              <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0b1a30', marginBottom: '16px' }}>
+                Create Study Group
+              </h3>
+
+              <form onSubmit={handleCreateGroup} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                    Group Title
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Algorithms & LeetCode Sprint"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                      Subject
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Data Structures"
+                      value={newSubject}
+                      onChange={(e) => setNewSubject(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: '10px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '14px',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                      Category
+                    </label>
+                    <select
+                      value={newCategory}
+                      onChange={(e) => setNewCategory(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: '10px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '14px',
+                        outline: 'none',
+                        background: '#ffffff'
+                      }}
+                    >
+                      <option value="Computer Science">Computer Science</option>
+                      <option value="Mathematics">Mathematics</option>
+                      <option value="AI & Data Science">AI & Data Science</option>
+                      <option value="Chemistry">Chemistry</option>
+                      <option value="Business">Business</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                      Schedule
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Tue & Thu • 6:00 PM"
+                      value={newSchedule}
+                      onChange={(e) => setNewSchedule(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: '10px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '14px',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                      Max Members
+                    </label>
+                    <input
+                      type="number"
+                      min={2}
+                      max={12}
+                      value={newMaxMembers}
+                      onChange={(e) => setNewMaxMembers(Number(e.target.value))}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: '10px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '14px',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                    Description
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Brief description of the study group..."
+                    value={newDescription}
+                    onChange={(e) => setNewDescription(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '14px',
+                      outline: 'none',
+                      resize: 'none'
+                    }}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  style={{ width: '100%', padding: '12px', marginTop: '6px' }}
+                >
+                  Create Group
+                </button>
+              </form>
+            </div>
           </div>
-        </main>
-      </div>
+        )}
+
+        {/* Clean Footer */}
+        <FindGroupPanel />
+      </main>
     </div>
   );
 };
