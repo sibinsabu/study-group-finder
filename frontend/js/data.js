@@ -1,43 +1,11 @@
-export interface GroupMember {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-  role: 'student' | 'mentor';
-  joinedAt: string;
-  university?: string;
-}
+/**
+ * StudySphere - Data Management Module
+ * Manages study groups, categories, enrollment, workshops, and localStorage synchronization.
+ */
 
-export interface GroupEvent {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  time?: string;
-  linkOrLocation?: string;
-}
+const STORAGE_KEY_GROUPS = 'studysphere_groups';
 
-export interface StudyGroup {
-  id: string;
-  title: string;
-  subject: string;
-  category: string;
-  university: string;
-  schedule: string;
-  membersCount: number;
-  maxMembers: number;
-  description: string;
-  isJoined?: boolean;
-  topics?: string[];
-  meetingRoom?: string;
-  createdBy?: string;
-  creatorName?: string;
-  creatorRole?: 'student' | 'mentor';
-  members?: GroupMember[];
-  events?: GroupEvent[];
-}
-
-export const INITIAL_STUDY_GROUPS: StudyGroup[] = [
+export const DEFAULT_STUDY_GROUPS = [
   {
     id: 'grp-1',
     title: 'Algorithms & LeetCode Sprint',
@@ -93,7 +61,7 @@ export const INITIAL_STUDY_GROUPS: StudyGroup[] = [
     createdBy: 'mentor-default',
     creatorName: 'Senior Academic Mentor',
     creatorRole: 'mentor',
-    topics: ['Green\'s Theorem', 'Surface Integrals', 'Eigenvalues', 'Vector Calculus'],
+    topics: ["Green's Theorem", 'Surface Integrals', 'Eigenvalues', 'Vector Calculus'],
     meetingRoom: 'Room #3 (Google Meet)',
     members: [
       { id: 'm-1', name: 'Senior Academic Mentor', email: 'mentor@university.edu', role: 'mentor', joinedAt: 'Creator / Host', university: 'UC Berkeley' },
@@ -173,9 +141,9 @@ export const INITIAL_STUDY_GROUPS: StudyGroup[] = [
     schedule: 'Saturdays • 2:00 PM',
     membersCount: 3,
     maxMembers: 6,
-    description: 'Building microservices, Spring Boot backends, React interfaces, and database integrations.',
+    description: 'Building microservices, Spring Boot backends, HTML5/CSS3 interfaces, and database integrations.',
     isJoined: false,
-    topics: ['Spring Boot REST APIs', 'React State', 'MongoDB Queries', 'Docker & Cloud Deploy'],
+    topics: ['Spring Boot REST APIs', 'HTML5 Semantic UI', 'MongoDB Queries', 'Docker & Cloud Deploy'],
     meetingRoom: 'Room #5 (Live Collaboration)',
     members: [
       { id: 'm-14', name: 'Alex Wong', email: 'alexw@uw.edu', role: 'mentor', joinedAt: 'Host', university: 'Univ of Washington' },
@@ -204,3 +172,175 @@ export const INITIAL_STUDY_GROUPS: StudyGroup[] = [
     events: []
   }
 ];
+
+export function getGroups() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_GROUPS);
+    if (!raw) {
+      localStorage.setItem(STORAGE_KEY_GROUPS, JSON.stringify(DEFAULT_STUDY_GROUPS));
+      return DEFAULT_STUDY_GROUPS;
+    }
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('Error loading groups from localStorage:', e);
+    return DEFAULT_STUDY_GROUPS;
+  }
+}
+
+export function saveGroups(groups) {
+  try {
+    localStorage.setItem(STORAGE_KEY_GROUPS, JSON.stringify(groups));
+  } catch (e) {
+    console.error('Error saving groups to localStorage:', e);
+  }
+}
+
+export function getGroupById(id) {
+  const groups = getGroups();
+  return groups.find(g => g.id === id) || null;
+}
+
+export function toggleJoinGroup(groupId, currentUser) {
+  const groups = getGroups();
+  let updatedGroup = null;
+
+  const updated = groups.map(g => {
+    if (g.id === groupId) {
+      const isJoined = !g.isJoined;
+      let members = g.members ? [...g.members] : [];
+
+      if (isJoined && currentUser) {
+        const alreadyIn = members.some(m => m.id === currentUser.id || m.email === currentUser.email);
+        if (!alreadyIn) {
+          members.push({
+            id: currentUser.id || `u-${Date.now()}`,
+            name: currentUser.name || 'Student Member',
+            email: currentUser.email || 'student@university.edu',
+            role: currentUser.role || 'student',
+            joinedAt: 'Just now',
+            university: currentUser.university || 'University'
+          });
+        }
+      } else if (!isJoined && currentUser) {
+        members = members.filter(m => m.id !== currentUser.id && m.email !== currentUser.email);
+      }
+
+      updatedGroup = {
+        ...g,
+        isJoined,
+        members,
+        membersCount: isJoined ? (g.membersCount + 1) : Math.max(1, g.membersCount - 1)
+      };
+      return updatedGroup;
+    }
+    return g;
+  });
+
+  saveGroups(updated);
+  return updatedGroup;
+}
+
+export function createStudyGroup(groupData, currentUser) {
+  const groups = getGroups();
+  const newGroup = {
+    id: `grp-${Date.now()}`,
+    title: groupData.title,
+    subject: groupData.subject,
+    category: groupData.category || 'Computer Science',
+    university: currentUser?.university || 'Open Campus',
+    schedule: groupData.schedule || 'Flexible • Weekly',
+    membersCount: 1,
+    maxMembers: parseInt(groupData.maxMembers, 10) || 6,
+    description: groupData.description,
+    isJoined: true,
+    createdBy: currentUser?.id || 'creator',
+    creatorName: currentUser?.name || 'Group Host',
+    creatorRole: currentUser?.role || 'student',
+    topics: groupData.topics || [],
+    meetingRoom: `Room #${Math.floor(Math.random() * 90 + 10)} (Online)`,
+    members: [
+      {
+        id: currentUser?.id || `m-${Date.now()}`,
+        name: currentUser?.name || 'Creator',
+        email: currentUser?.email || 'host@university.edu',
+        role: currentUser?.role || 'student',
+        joinedAt: 'Creator / Host',
+        university: currentUser?.university || 'University'
+      }
+    ],
+    events: []
+  };
+
+  groups.unshift(newGroup);
+  saveGroups(groups);
+  return newGroup;
+}
+
+export function kickMemberFromGroup(groupId, memberId) {
+  const groups = getGroups();
+  let updatedGroup = null;
+
+  const updated = groups.map(g => {
+    if (g.id === groupId) {
+      const remaining = (g.members || []).filter(m => m.id !== memberId);
+      updatedGroup = {
+        ...g,
+        members: remaining,
+        membersCount: Math.max(1, remaining.length)
+      };
+      return updatedGroup;
+    }
+    return g;
+  });
+
+  saveGroups(updated);
+  return updatedGroup;
+}
+
+export function addEventToGroup(groupId, eventData) {
+  const groups = getGroups();
+  let updatedGroup = null;
+  const newEvent = {
+    id: `ev-${Date.now()}`,
+    title: eventData.title,
+    description: eventData.description,
+    date: eventData.date,
+    time: eventData.time || '60 mins',
+    linkOrLocation: eventData.linkOrLocation || 'Virtual Room'
+  };
+
+  const updated = groups.map(g => {
+    if (g.id === groupId) {
+      const existing = g.events || [];
+      updatedGroup = {
+        ...g,
+        events: [...existing, newEvent]
+      };
+      return updatedGroup;
+    }
+    return g;
+  });
+
+  saveGroups(updated);
+  return updatedGroup;
+}
+
+export function deleteEventFromGroup(groupId, eventId) {
+  const groups = getGroups();
+  let updatedGroup = null;
+
+  const updated = groups.map(g => {
+    if (g.id === groupId) {
+      const remaining = (g.events || []).filter(e => e.id !== eventId);
+      updatedGroup = {
+        ...g,
+        events: remaining
+      };
+      return updatedGroup;
+    }
+    return g;
+  });
+
+  saveGroups(updated);
+  return updatedGroup;
+}

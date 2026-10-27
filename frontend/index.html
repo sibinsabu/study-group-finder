@@ -1,18 +1,437 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StudySphere - Collaborate & Study | Your Platform for Peak Performance</title>
-    <meta name="description" content="Connect, schedule, and excel with peers in minutes. Join a study group and start learning today." />
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudySphere - Collaborate & Study | Peer Performance Platform</title>
+  <meta name="description" content="Connect with verified university peers and academic mentors in minutes. Join collaborative study groups and master your courses." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="grid-bg">
+    <div class="app-viewport">
+
+      <!-- Dynamic Navigation Header -->
+      <header id="main-navbar"></header>
+
+      <!-- Main Landing Content -->
+      <main>
+        <!-- Hero Section -->
+        <section class="hero-section" aria-labelledby="hero-heading">
+          <div class="hero-content">
+            <h1 id="hero-heading" class="hero-title">
+              Connect with Driven Peers & Master Your Courses <span class="text-coral">Together</span>
+            </h1>
+
+            <p class="hero-desc">
+              StudySphere brings students and academic mentors together in focused, high-impact study circles. Solve tough problem sets, prepare for midterms, and accelerate your learning.
+            </p>
+
+            <div class="hero-actions">
+              <a href="dashboard.html" class="btn-primary" id="hero-btn-explore">
+                <span>Explore Study Circles</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </a>
+
+              <button type="button" class="btn-outline" id="hero-btn-how-it-works">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+                <span>How It Works</span>
+              </button>
+            </div>
+
+            <div class="hero-stats">
+              <div class="stat-item">
+                <h4>1,200+</h4>
+                <p>Study Circles</p>
+              </div>
+              <div class="stat-item">
+                <h4>8,500+</h4>
+                <p>Enrolled Students</p>
+              </div>
+              <div class="stat-item">
+                <h4>98%</h4>
+                <p>Exam Pass Rate</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-media">
+            <!-- Rotating Circular Stamp Badge -->
+            <div class="rotating-stamp" aria-hidden="true">
+              <svg class="stamp-svg" viewBox="0 0 100 100">
+                <path id="stamp-curve" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
+                <text font-size="9" font-weight="800" fill="#0b1a30" letter-spacing="2.2">
+                  <textPath href="#stamp-curve">STUDY • COLLABORATE • EXCEL • </textPath>
+                </text>
+              </svg>
+              <div class="stamp-badge-inner">S</div>
+            </div>
+
+            <!-- Hero Image Preview -->
+            <div class="hero-image-wrapper">
+              <img src="students_collaborating.jpg" alt="University students collaborating in a study group" width="600" height="400" />
+            </div>
+
+            <!-- Floating Live Session Card -->
+            <div class="floating-card" id="floating-live-card">
+              <span class="pulse-indicator" aria-label="Live session indicator"></span>
+              <div>
+                <div style="font-size: 13px; font-weight: 800; color: #0b1a30;">LeetCode & Algorithms Sprint</div>
+                <div style="font-size: 11px; color: #64748b; font-weight: 600;">Room #1 • 4 Peers Online Now</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Featured Popular Groups Section -->
+        <section class="section-wrapper" aria-labelledby="featured-groups-heading">
+          <div class="section-header">
+            <div>
+              <div class="section-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+                <span>POPULAR STUDY GROUPS</span>
+              </div>
+              <h2 id="featured-groups-heading" class="section-title">Join Active Student Circles</h2>
+              <p class="section-subtitle">Jump directly into collaborative problem solving with peers from top universities.</p>
+            </div>
+
+            <a href="dashboard.html" class="btn-outline" id="btn-view-all-groups">
+              <span>View All Circles</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+          </div>
+
+          <!-- Featured Cards Grid (Populated by JS) -->
+          <div class="study-grid" id="featured-groups-container">
+            <!-- Dynamic Content -->
+          </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="section-wrapper alt-bg" aria-labelledby="how-it-works-heading">
+          <div style="text-align: center; max-width: 680px; margin: 0 auto 48px auto;">
+            <div class="section-badge" style="justify-content: center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+              <span>SIMPLE 3-STEP WORKFLOW</span>
+            </div>
+            <h2 id="how-it-works-heading" class="section-title" style="font-size: 32px;">How StudySphere Powers Your Learning</h2>
+            <p class="section-subtitle" style="margin: 8px auto 0 auto;">No complicated signups. Search your syllabus, enroll in a circle, and start studying immediately.</p>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px;">
+            <article class="study-card" style="padding: 32px 28px; text-align: left;">
+              <div style="width: 50px; height: 50px; border-radius: 14px; background: rgba(11,26,48,0.06); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #0b1a30; margin-bottom: 20px;">
+                01
+              </div>
+              <h3 style="font-size: 19px; font-weight: 800; color: #0b1a30; margin-bottom: 8px;">Discover or Create a Group</h3>
+              <p style="font-size: 14px; color: #64748b; line-height: 1.6;">
+                Filter by department, university course code, or upcoming midterm topics. Or create your own study circle with custom schedules and cap sizes.
+              </p>
+            </article>
+
+            <article class="study-card" style="padding: 32px 28px; text-align: left;">
+              <div style="width: 50px; height: 50px; border-radius: 14px; background: rgba(235,87,87,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #eb5757; margin-bottom: 20px;">
+                02
+              </div>
+              <h3 style="font-size: 19px; font-weight: 800; color: #0b1a30; margin-bottom: 8px;">Collaborate in Real-Time</h3>
+              <p style="font-size: 14px; color: #64748b; line-height: 1.6;">
+                Access shared virtual rooms, whiteboard links, LeetCode problem lists, and scheduled group sprints that keep you accountable.
+              </p>
+            </article>
+
+            <article class="study-card" style="padding: 32px 28px; text-align: left;">
+              <div style="width: 50px; height: 50px; border-radius: 14px; background: rgba(16,185,129,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #10b981; margin-bottom: 20px;">
+                03
+              </div>
+              <h3 style="font-size: 19px; font-weight: 800; color: #0b1a30; margin-bottom: 8px;">Learn with Academic Mentors</h3>
+              <p style="font-size: 14px; color: #64748b; line-height: 1.6;">
+                Verified graduate mentors and course TAs host weekly masterclasses, review code architecture, and walk through tough exam questions.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <!-- Call to Action Banner -->
+        <section style="padding: 60px 48px; background: #0b1a30; color: #ffffff; text-align: center; position: relative;">
+          <h2 style="font-size: 32px; font-weight: 900; color: #ffffff; margin-bottom: 12px;">Ready to Ace Your Next Midterm?</h2>
+          <p style="font-size: 16px; color: #94a3b8; max-width: 560px; margin: 0 auto 28px auto;">
+            Join over 8,500 students collaborating on computer science, calculus, AI, chemistry, and business courses.
+          </p>
+          <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+            <a href="register.html" class="btn-coral" id="cta-btn-register" style="padding: 12px 32px; font-size: 15px;">Create Free Student Account</a>
+            <a href="dashboard.html" class="btn-outline" id="cta-btn-explore" style="padding: 12px 28px; font-size: 15px; color: #ffffff; border-color: rgba(255,255,255,0.3); background: transparent;">Browse Circles</a>
+          </div>
+        </section>
+      </main>
+
+      <!-- View Group Modal -->
+      <div class="modal-backdrop" id="view-group-modal" role="dialog" aria-modal="true" aria-labelledby="modal-group-title">
+        <div class="modal-card">
+          <div class="modal-header">
+            <div>
+              <span class="category-tag" id="modal-group-category">Category</span>
+              <h3 id="modal-group-title" style="margin-top: 6px;">Study Group Title</h3>
+            </div>
+            <button type="button" class="modal-close-btn" id="btn-close-view-modal" aria-label="Close modal">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <div style="display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
+              <span style="font-size: 13px; color: #0284c7; font-weight: 700;" id="modal-group-subject">Subject</span>
+              <span style="font-size: 13px; color: #64748b;" id="modal-group-university">• Stanford & MIT</span>
+              <span style="font-size: 13px; color: #64748b;" id="modal-group-schedule">• Schedule</span>
+            </div>
+
+            <p style="font-size: 14px; color: #334155; line-height: 1.6; margin-bottom: 20px;" id="modal-group-desc">
+              Description text...
+            </p>
+
+            <div style="margin-bottom: 20px;">
+              <h4 style="font-size: 14px; font-weight: 800; color: #0b1a30; margin-bottom: 8px;">Key Topics Covered</h4>
+              <div class="card-topics" id="modal-group-topics"></div>
+            </div>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+              <h4 style="font-size: 13px; font-weight: 800; color: #0b1a30; margin-bottom: 6px;">Meeting Location / Virtual Room</h4>
+              <p style="font-size: 13px; color: #0284c7; font-weight: 600;" id="modal-group-room">Live Zoom Room #1</p>
+            </div>
+
+            <div>
+              <h4 style="font-size: 14px; font-weight: 800; color: #0b1a30; margin-bottom: 10px;">Members (<span id="modal-group-member-count">4</span>)</h4>
+              <div id="modal-group-members-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="btn-modal-cancel">Close</button>
+            <button type="button" class="btn-primary" id="btn-modal-join-toggle">Join Study Group</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- How It Works Informational Modal -->
+      <div class="modal-backdrop" id="how-it-works-modal" role="dialog" aria-modal="true" aria-labelledby="modal-hiw-title">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 id="modal-hiw-title">About StudySphere Platform</h3>
+            <button type="button" class="modal-close-btn" id="btn-close-hiw-modal" aria-label="Close modal">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+          <div class="modal-body" style="line-height: 1.7; font-size: 14px; color: #334155;">
+            <p style="margin-bottom: 12px;">
+              <strong>StudySphere</strong> is designed for university students to find peer study circles, organize exam prep sprints, and attend guided mentor review sessions.
+            </p>
+            <ul style="padding-left: 20px; margin-bottom: 16px;">
+              <li><strong>Zero friction:</strong> Search circles by subject, course code, or university.</li>
+              <li><strong>Verified Mentors:</strong> Academic mentors and graduate TAs provide mentorship and lead workshops.</li>
+              <li><strong>Full Session Privacy:</strong> Built-in Spring Boot security and session tracking guards your profile.</li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <a href="dashboard.html" class="btn-primary">Start Exploring</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Site Footer -->
+      <footer class="site-footer">
+        <div class="footer-top">
+          <div class="footer-brand">
+            <h3>StudySphere</h3>
+            <p>The premier collaborative study & peer performance platform designed for modern higher education.</p>
+          </div>
+
+          <div class="footer-col">
+            <h4>Explore</h4>
+            <ul class="footer-links">
+              <li><a href="dashboard.html">Study Circles</a></li>
+              <li><a href="dashboard.html?category=Computer+Science">Computer Science</a></li>
+              <li><a href="dashboard.html?category=Mathematics">Mathematics</a></li>
+              <li><a href="dashboard.html?category=AI+%26+Data+Science">AI & PyTorch</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Account</h4>
+            <ul class="footer-links">
+              <li><a href="login.html">Student Sign In</a></li>
+              <li><a href="register.html">Create Account</a></li>
+              <li><a href="login.html?role=mentor">Mentor Portal</a></li>
+              <li><a href="profile.html">My Profile</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Universities</h4>
+            <ul class="footer-links">
+              <li><a href="#">Stanford & MIT</a></li>
+              <li><a href="#">UC Berkeley</a></li>
+              <li><a href="#">Carnegie Mellon</a></li>
+              <li><a href="#">Johns Hopkins</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <span>&copy; 2026 StudySphere Platform. All rights reserved. Built with HTML5 & CSS3.</span>
+          <span>Spring Boot Backend & MongoDB Integration</span>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- JavaScript Module Execution -->
+  <script type="module">
+    import { initNavbar, openModal, closeModal, showToast } from './js/app.js';
+    import { getGroups, toggleJoinGroup } from './js/data.js';
+    import { authService } from './js/auth.js';
+
+    // Initialize top navigation
+    initNavbar('home');
+
+    // Render 3 popular featured groups
+    const groups = getGroups();
+    const featured = groups.slice(0, 3);
+    const container = document.getElementById('featured-groups-container');
+    let currentViewingGroup = null;
+
+    function renderFeatured() {
+      container.innerHTML = featured.map(group => `
+        <article class="study-card" id="card-${group.id}">
+          <div>
+            <div class="card-top">
+              <span class="category-tag">${group.category}</span>
+              <span class="schedule-pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 12 16"></polyline></svg>
+                ${group.schedule}
+              </span>
+            </div>
+
+            <h3 class="card-title" data-view-id="${group.id}">${group.title}</h3>
+            <p class="card-subject">${group.subject} • ${group.university}</p>
+            <p class="card-desc">${group.description}</p>
+
+            <div class="card-topics">
+              ${(group.topics || []).slice(0, 3).map(t => `<span class="topic-tag">${t}</span>`).join('')}
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <span class="members-indicator">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              ${group.membersCount}/${group.maxMembers} Members
+            </span>
+
+            <div class="card-btn-group">
+              <button type="button" class="btn-secondary btn-view-group" data-view-id="${group.id}" style="padding: 6px 14px; font-size: 12px;">
+                View
+              </button>
+              <button type="button" class="${group.isJoined ? 'btn-outline' : 'btn-primary'} btn-join-group" data-join-id="${group.id}" style="padding: 6px 16px; font-size: 13px;">
+                ${group.isJoined ? 'Enrolled' : 'Join Group'}
+              </button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+
+      // Attach View Handlers
+      container.querySelectorAll('[data-view-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-view-id');
+          openViewGroupModal(id);
+        });
+      });
+
+      // Attach Join Handlers
+      container.querySelectorAll('[data-join-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-join-id');
+          handleJoin(id);
+        });
+      });
+    }
+
+    renderFeatured();
+
+    // How It Works button
+    document.getElementById('hero-btn-how-it-works')?.addEventListener('click', () => {
+      openModal('how-it-works-modal');
+    });
+    document.getElementById('btn-close-hiw-modal')?.addEventListener('click', () => {
+      closeModal('how-it-works-modal');
+    });
+
+    // View Modal actions
+    function openViewGroupModal(groupId) {
+      const allGroups = getGroups();
+      currentViewingGroup = allGroups.find(g => g.id === groupId);
+      if (!currentViewingGroup) return;
+
+      document.getElementById('modal-group-category').textContent = currentViewingGroup.category;
+      document.getElementById('modal-group-title').textContent = currentViewingGroup.title;
+      document.getElementById('modal-group-subject').textContent = currentViewingGroup.subject;
+      document.getElementById('modal-group-university').textContent = `• ${currentViewingGroup.university}`;
+      document.getElementById('modal-group-schedule').textContent = `• ${currentViewingGroup.schedule}`;
+      document.getElementById('modal-group-desc').textContent = currentViewingGroup.description;
+      document.getElementById('modal-group-room').textContent = currentViewingGroup.meetingRoom || 'Live Collaboration Room';
+      document.getElementById('modal-group-member-count').textContent = currentViewingGroup.membersCount;
+
+      const topicsBox = document.getElementById('modal-group-topics');
+      topicsBox.innerHTML = (currentViewingGroup.topics || []).map(t => `<span class="topic-tag">${t}</span>`).join('');
+
+      const membersList = document.getElementById('modal-group-members-list');
+      membersList.innerHTML = (currentViewingGroup.members || []).map(m => `
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <div>
+            <span style="font-size: 13px; font-weight: 700; color: #0b1a30;">${m.name}</span>
+            <span style="font-size: 11px; color: #64748b; margin-left: 6px;">(${m.university || 'Student'})</span>
+          </div>
+          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: ${m.role === 'mentor' ? '#eb5757' : '#0284c7'};">
+            ${m.role}
+          </span>
+        </div>
+      `).join('');
+
+      const joinBtn = document.getElementById('btn-modal-join-toggle');
+      joinBtn.textContent = currentViewingGroup.isJoined ? 'Leave Circle' : 'Join Study Group';
+      joinBtn.className = currentViewingGroup.isJoined ? 'btn-danger' : 'btn-primary';
+
+      openModal('view-group-modal');
+    }
+
+    document.getElementById('btn-close-view-modal')?.addEventListener('click', () => {
+      closeModal('view-group-modal');
+    });
+    document.getElementById('btn-modal-cancel')?.addEventListener('click', () => {
+      closeModal('view-group-modal');
+    });
+
+    function handleJoin(groupId) {
+      if (!authService.isLoggedIn()) {
+        const group = getGroups().find(g => g.id === groupId);
+        window.location.href = `login.html?notice=join_group&title=${encodeURIComponent(group ? group.title : '')}`;
+        return;
+      }
+      const user = authService.getCurrentUser();
+      const updated = toggleJoinGroup(groupId, user);
+      showToast(updated.isJoined ? `Enrolled in "${updated.title}"!` : `Left "${updated.title}".`);
+      renderFeatured();
+      if (currentViewingGroup && currentViewingGroup.id === groupId) {
+        openViewGroupModal(groupId);
+      }
+    }
+
+    document.getElementById('btn-modal-join-toggle')?.addEventListener('click', () => {
+      if (currentViewingGroup) {
+        handleJoin(currentViewingGroup.id);
+      }
+    });
+  </script>
+</body>
 </html>

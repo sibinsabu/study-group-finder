@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | StudySphere - Peer Collaboration Platform</title>
+  <meta name="description" content="Explore active university study circles, schedule midterm study sessions, and join collaborative peer groups on StudySphere." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="grid-bg">
+    <div class="app-viewport">
+
+      <!-- Navigation Header -->
+      <header id="main-navbar"></header>
+
+      <!-- Dashboard Hero / Stats Banner -->
+      <header class="dashboard-hero" aria-label="Dashboard Overview">
+        <div class="dashboard-hero-content">
+          <div>
+            <div class="section-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span id="user-portal-badge">STUDENT DASHBOARD</span>
+            </div>
+            <h1 style="font-size: 30px; font-weight: 900; color: #0b1a30; margin-bottom: 4px;">
+              Study Circles & Workshops
+            </h1>
+            <p id="user-welcome-sub" style="font-size: 14px; color: #64748b;">
+              Welcome back! Explore peer learning circles or create your own study group.
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn-primary" id="btn-open-create-modal">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Create New Circle</span>
+            </button>
+            <a href="my-groups.html" class="btn-outline" id="btn-view-my-groups">
+              <span>My Joined Groups</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stat-pills-row">
+          <div class="stat-pill-card">
+            <div class="stat-pill-icon navy">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div class="stat-pill-info">
+              <h4 id="stat-total-circles">6</h4>
+              <p>Active Circles</p>
+            </div>
+          </div>
+
+          <div class="stat-pill-card">
+            <div class="stat-pill-icon coral">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+            </div>
+            <div class="stat-pill-info">
+              <h4 id="stat-joined-count">2</h4>
+              <p>My Enrolled Circles</p>
+            </div>
+          </div>
+
+          <div class="stat-pill-card">
+            <div class="stat-pill-icon emerald">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <div class="stat-pill-info">
+              <h4 id="stat-workshops-count">4</h4>
+              <p>Weekly Workshops</p>
+            </div>
+          </div>
+
+          <div class="stat-pill-card">
+            <div class="stat-pill-icon cyan">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </div>
+            <div class="stat-pill-info">
+              <h4>98%</h4>
+              <p>Midterm Readiness</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Filter & Grid Container -->
+      <main class="section-wrapper" style="padding-top: 36px;">
+
+        <!-- Filter & Search Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+          <!-- Category Chips -->
+          <div class="filter-bar" id="category-filter-bar" style="margin-bottom: 0;">
+            <button type="button" class="filter-chip active" data-category="All">All Categories</button>
+            <button type="button" class="filter-chip" data-category="Computer Science">Computer Science</button>
+            <button type="button" class="filter-chip" data-category="Mathematics">Mathematics</button>
+            <button type="button" class="filter-chip" data-category="AI & Data Science">AI & Data Science</button>
+            <button type="button" class="filter-chip" data-category="Chemistry">Chemistry</button>
+            <button type="button" class="filter-chip" data-category="Business">Business</button>
+          </div>
+
+          <!-- Sort Dropdown -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label for="sort-select" style="font-size: 13px; font-weight: 700; color: #64748b;">Sort By:</label>
+            <div class="input-container" style="padding: 6px 12px; background: #ffffff;">
+              <select id="sort-select" style="font-size: 13px; font-weight: 700;">
+                <option value="popular">Most Popular</option>
+                <option value="title">Course Title (A-Z)</option>
+                <option value="members">Members Count</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Groups Grid -->
+        <div class="study-grid" id="dashboard-groups-grid" aria-live="polite">
+          <!-- Dynamic Content Generated by JavaScript -->
+        </div>
+
+        <!-- Empty State (hidden by default) -->
+        <div id="empty-state-banner" style="display: none; text-align: center; padding: 60px 20px; background: #f8fafc; border-radius: 20px; border: 1px dashed #cbd5e1; margin-top: 20px;">
+          <h3 style="font-size: 20px; color: #0b1a30; margin-bottom: 8px;">No Study Circles Found</h3>
+          <p style="font-size: 14px; color: #64748b; margin-bottom: 20px;">Try adjusting your search terms or filter categories, or start a new study circle!</p>
+          <button type="button" class="btn-primary" id="btn-empty-reset">Reset Filters</button>
+        </div>
+      </main>
+
+      <!-- Modal 1: Create Study Group Modal -->
+      <div class="modal-backdrop" id="create-group-modal" role="dialog" aria-modal="true" aria-labelledby="modal-create-title">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 id="modal-create-title">Create New Study Circle</h3>
+            <button type="button" class="modal-close-btn" id="btn-close-create-modal" aria-label="Close modal">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+
+          <form id="create-group-form" novalidate>
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="new-title" class="form-label">Study Circle Title</label>
+                <div class="input-container">
+                  <input type="text" id="new-title" required placeholder="e.g. Distributed Systems & Raft Consensus Sprint" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="new-subject" class="form-label">Course Name / Subject</label>
+                <div class="input-container">
+                  <input type="text" id="new-subject" required placeholder="e.g. CS 244B: Distributed Systems" />
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                  <label for="new-category" class="form-label">Category</label>
+                  <div class="input-container">
+                    <select id="new-category">
+                      <option value="Computer Science">Computer Science</option>
+                      <option value="Mathematics">Mathematics</option>
+                      <option value="AI & Data Science">AI & Data Science</option>
+                      <option value="Chemistry">Chemistry</option>
+                      <option value="Business">Business</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="new-max-members" class="form-label">Capacity Cap (Max Members)</label>
+                  <div class="input-container">
+                    <select id="new-max-members">
+                      <option value="4">4 Members (Intimate)</option>
+                      <option value="6" selected>6 Members (Recommended)</option>
+                      <option value="8">8 Members</option>
+                      <option value="12">12 Members (Lecture/Review)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="new-schedule" class="form-label">Weekly Schedule</label>
+                <div class="input-container">
+                  <input type="text" id="new-schedule" required placeholder="e.g. Tue & Thu • 6:00 PM EST" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="new-topics" class="form-label">Key Topics (comma separated)</label>
+                <div class="input-container">
+                  <input type="text" id="new-topics" placeholder="e.g. Raft, Paxos, Caching, CAP Theorem" />
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="new-description" class="form-label">Circle Objectives & Overview</label>
+                <div class="input-container">
+                  <textarea id="new-description" rows="3" required placeholder="Describe what problems your circle will solve and expectations for members..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn-secondary" id="btn-cancel-create">Cancel</button>
+              <button type="submit" class="btn-primary" id="btn-submit-create">Create Study Circle</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modal 2: View Group Details Modal -->
+      <div class="modal-backdrop" id="view-group-modal" role="dialog" aria-modal="true" aria-labelledby="modal-view-title">
+        <div class="modal-card">
+          <div class="modal-header">
+            <div>
+              <span class="category-tag" id="modal-view-category">Category</span>
+              <h3 id="modal-view-title" style="margin-top: 6px;">Title</h3>
+            </div>
+            <button type="button" class="modal-close-btn" id="btn-close-view-modal" aria-label="Close modal">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <div style="display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
+              <span style="font-size: 13px; color: #0284c7; font-weight: 700;" id="modal-view-subject">Subject</span>
+              <span style="font-size: 13px; color: #64748b;" id="modal-view-university">• Stanford & MIT</span>
+              <span style="font-size: 13px; color: #64748b;" id="modal-view-schedule">• Schedule</span>
+            </div>
+
+            <p style="font-size: 14px; color: #334155; line-height: 1.6; margin-bottom: 20px;" id="modal-view-desc"></p>
+
+            <div style="margin-bottom: 20px;">
+              <h4 style="font-size: 14px; font-weight: 800; color: #0b1a30; margin-bottom: 8px;">Topics Covered</h4>
+              <div class="card-topics" id="modal-view-topics"></div>
+            </div>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+              <h4 style="font-size: 13px; font-weight: 800; color: #0b1a30; margin-bottom: 6px;">Meeting Location / Virtual Room</h4>
+              <p style="font-size: 13px; color: #0284c7; font-weight: 600;" id="modal-view-room">Live Zoom Room #1</p>
+            </div>
+
+            <!-- Scheduled Workshops Section -->
+            <div style="margin-bottom: 20px;">
+              <h4 style="font-size: 14px; font-weight: 800; color: #0b1a30; margin-bottom: 8px;">Scheduled Mentor Workshops & Review Sprints</h4>
+              <div id="modal-view-events-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            </div>
+
+            <div>
+              <h4 style="font-size: 14px; font-weight: 800; color: #0b1a30; margin-bottom: 10px;">Enrolled Members (<span id="modal-view-member-count">4</span>)</h4>
+              <div id="modal-view-members-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="btn-cancel-view">Close</button>
+            <button type="button" class="btn-primary" id="btn-toggle-join-view">Join Study Group</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal 3: Mentor Management Modal -->
+      <div class="modal-backdrop" id="mentor-manage-modal" role="dialog" aria-modal="true" aria-labelledby="modal-mentor-title">
+        <div class="modal-card" style="max-width: 680px;">
+          <div class="modal-header">
+            <div>
+              <span class="category-tag" style="background: var(--accent-coral-light); color: var(--accent-coral);">Mentor Console</span>
+              <h3 id="modal-mentor-title" style="margin-top: 6px;">Manage Circle</h3>
+            </div>
+            <button type="button" class="modal-close-btn" id="btn-close-mentor-modal" aria-label="Close modal">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <!-- Member Roster Management -->
+            <div style="margin-bottom: 28px;">
+              <h4 style="font-size: 15px; font-weight: 800; color: #0b1a30; margin-bottom: 12px;">Active Member Roster</h4>
+              <div id="mentor-roster-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+
+            <!-- Add Workshop Event Form -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px;">
+              <h4 style="font-size: 15px; font-weight: 800; color: #0b1a30; margin-bottom: 12px;">Schedule Mentored Workshop / Exam Review</h4>
+              <form id="add-event-form">
+                <div class="form-group">
+                  <label for="event-title" class="form-label">Workshop Title</label>
+                  <div class="input-container" style="background: #ffffff;">
+                    <input type="text" id="event-title" required placeholder="e.g. Dynamic Programming & Graph Midterm Review" />
+                  </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                  <div class="form-group">
+                    <label for="event-date" class="form-label">Date & Time</label>
+                    <div class="input-container" style="background: #ffffff;">
+                      <input type="text" id="event-date" required placeholder="e.g. Thursday • 6:30 PM" />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="event-duration" class="form-label">Duration</label>
+                    <div class="input-container" style="background: #ffffff;">
+                      <input type="text" id="event-duration" placeholder="e.g. 90 mins" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="event-room" class="form-label">Meeting Room Link</label>
+                  <div class="input-container" style="background: #ffffff;">
+                    <input type="text" id="event-room" placeholder="e.g. Live Zoom Room #1" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="event-desc" class="form-label">Workshop Outline</label>
+                  <div class="input-container" style="background: #ffffff;">
+                    <textarea id="event-desc" rows="2" placeholder="Topics and exercises covered during this mentored workshop..."></textarea>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-coral" style="font-size: 13px; padding: 8px 20px;">
+                  Add Scheduled Workshop
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="btn-close-mentor-footer">Done</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <div class="footer-bottom" style="border: none; padding-top: 0; justify-content: space-between;">
+          <span>&copy; 2026 StudySphere Platform. All rights reserved.</span>
+          <div style="display: flex; gap: 16px;">
+            <a href="dashboard.html" style="color: #94a3b8;">Explore</a>
+            <a href="my-groups.html" style="color: #94a3b8;">My Groups</a>
+            <a href="profile.html" style="color: #94a3b8;">Profile</a>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { initNavbar, openModal, closeModal, showToast } from './js/app.js';
+    import { authService } from './js/auth.js';
+    import {
+      getGroups,
+      toggleJoinGroup,
+      createStudyGroup,
+      kickMemberFromGroup,
+      addEventToGroup,
+      deleteEventFromGroup
+    } from './js/data.js';
+
+    // Verify session guard
+    if (!authService.requireAuth('login.html')) {
+      // redirected
+    }
+
+    const currentUser = authService.getCurrentUser();
+    initNavbar('dashboard');
+
+    // Update hero banner with user info
+    if (currentUser) {
+      document.getElementById('user-welcome-sub').textContent =
+        `Welcome back, ${currentUser.name}! (${currentUser.university || 'University Student'}) • Enrolled in ${currentUser.joinedGroups?.length || 2} active circles.`;
+      if (currentUser.role === 'mentor') {
+        document.getElementById('user-portal-badge').textContent = 'ACADEMIC MENTOR PORTAL';
+        document.getElementById('user-portal-badge').style.color = '#eb5757';
+      }
+    }
+
+    // State
+    let activeCategory = 'All';
+    let searchQuery = '';
+    let sortMode = 'popular';
+    let currentViewingGroup = null;
+    let currentManagingGroup = null;
+
+    // Parse search query from URL if passed
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('search')) {
+      searchQuery = urlParams.get('search').toLowerCase();
+      const globalInput = document.getElementById('global-search-input');
+      if (globalInput) globalInput.value = urlParams.get('search');
+    }
+    if (urlParams.get('category')) {
+      activeCategory = urlParams.get('category');
+    }
+
+    // Categories filter listeners
+    const categoryChips = document.querySelectorAll('.filter-chip');
+    categoryChips.forEach(chip => {
+      if (chip.getAttribute('data-category') === activeCategory) {
+        categoryChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      }
+      chip.addEventListener('click', () => {
+        categoryChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeCategory = chip.getAttribute('data-category');
+        renderDashboardGroups();
+      });
+    });
+
+    // Sort select listener
+    const sortSelect = document.getElementById('sort-select');
+    sortSelect.addEventListener('change', (e) => {
+      sortMode = e.target.value;
+      renderDashboardGroups();
+    });
+
+    // Global search input listener on dashboard
+    const searchInput = document.getElementById('global-search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.toLowerCase().trim();
+        renderDashboardGroups();
+      });
+    }
+
+    const grid = document.getElementById('dashboard-groups-grid');
+    const emptyState = document.getElementById('empty-state-banner');
+
+    function renderDashboardGroups() {
+      const allGroups = getGroups();
+      let filtered = allGroups.filter(g => {
+        const matchesCategory = activeCategory === 'All' || g.category === activeCategory;
+        const matchesSearch = !searchQuery ||
+          g.title.toLowerCase().includes(searchQuery) ||
+          g.subject.toLowerCase().includes(searchQuery) ||
+          g.university.toLowerCase().includes(searchQuery) ||
+          (g.topics || []).some(t => t.toLowerCase().includes(searchQuery));
+        return matchesCategory && matchesSearch;
+      });
+
+      // Sorting
+      if (sortMode === 'title') {
+        filtered.sort((a, b) => a.title.localeCompare(b.title));
+      } else if (sortMode === 'members') {
+        filtered.sort((a, b) => b.membersCount - a.membersCount);
+      } else {
+        // popular
+        filtered.sort((a, b) => b.membersCount - a.membersCount);
+      }
+
+      // Update stats counters
+      document.getElementById('stat-total-circles').textContent = allGroups.length;
+      const joinedCount = allGroups.filter(g => g.isJoined).length;
+      document.getElementById('stat-joined-count').textContent = joinedCount;
+      const workshopCount = allGroups.reduce((acc, g) => acc + (g.events?.length || 0), 0);
+      document.getElementById('stat-workshops-count').textContent = workshopCount;
+
+      if (filtered.length === 0) {
+        grid.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      grid.style.display = 'grid';
+      emptyState.style.display = 'none';
+
+      const isMentorUser = authService.isMentor();
+
+      grid.innerHTML = filtered.map(group => {
+        const isJoined = group.isJoined;
+        const canManage = isMentorUser || group.createdBy === currentUser?.id;
+
+        return `
+          <article class="study-card" id="card-${group.id}">
+            <div>
+              <div class="card-top">
+                <span class="category-tag">${group.category}</span>
+                <span class="schedule-pill">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 12 16"></polyline></svg>
+                  ${group.schedule}
+                </span>
+              </div>
+
+              <h3 class="card-title" data-view-id="${group.id}">${group.title}</h3>
+              <p class="card-subject">${group.subject} • ${group.university}</p>
+              <p class="card-desc">${group.description}</p>
+
+              <div class="card-topics">
+                ${(group.topics || []).map(t => `<span class="topic-tag">${t}</span>`).join('')}
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <span class="members-indicator">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                ${group.membersCount}/${group.maxMembers} Members
+              </span>
+
+              <div class="card-btn-group">
+                <button type="button" class="btn-secondary" data-view-id="${group.id}" style="padding: 6px 12px; font-size: 12px;">
+                  View
+                </button>
+
+                ${canManage ? `
+                  <button type="button" class="btn-outline" data-manage-id="${group.id}" style="padding: 6px 12px; font-size: 12px; border-color: var(--accent-coral); color: var(--accent-coral);">
+                    Manage
+                  </button>
+                ` : ''}
+
+                <button type="button" class="${isJoined ? 'btn-outline' : 'btn-primary'}" data-join-id="${group.id}" style="padding: 6px 16px; font-size: 13px;">
+                  ${isJoined ? 'Enrolled' : 'Join Circle'}
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      // Attach View Handlers
+      grid.querySelectorAll('[data-view-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-view-id');
+          openViewModal(id);
+        });
+      });
+
+      // Attach Join Handlers
+      grid.querySelectorAll('[data-join-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-join-id');
+          handleJoinAction(id);
+        });
+      });
+
+      // Attach Manage Handlers
+      grid.querySelectorAll('[data-manage-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-manage-id');
+          openMentorManageModal(id);
+        });
+      });
+    }
+
+    renderDashboardGroups();
+
+    // Reset filter button
+    document.getElementById('btn-empty-reset')?.addEventListener('click', () => {
+      activeCategory = 'All';
+      searchQuery = '';
+      if (searchInput) searchInput.value = '';
+      categoryChips.forEach(c => c.classList.remove('active'));
+      categoryChips[0].classList.add('active');
+      renderDashboardGroups();
+    });
+
+    // Join / Leave Handler
+    function handleJoinAction(groupId) {
+      const updated = toggleJoinGroup(groupId, currentUser);
+      showToast(updated.isJoined ? `Successfully joined "${updated.title}"!` : `Left "${updated.title}".`);
+      renderDashboardGroups();
+      if (currentViewingGroup && currentViewingGroup.id === groupId) {
+        openViewModal(groupId);
+      }
+    }
+
+    // Modal: View Group
+    function openViewModal(groupId) {
+      const allGroups = getGroups();
+      currentViewingGroup = allGroups.find(g => g.id === groupId);
+      if (!currentViewingGroup) return;
+
+      document.getElementById('modal-view-category').textContent = currentViewingGroup.category;
+      document.getElementById('modal-view-title').textContent = currentViewingGroup.title;
+      document.getElementById('modal-view-subject').textContent = currentViewingGroup.subject;
+      document.getElementById('modal-view-university').textContent = `• ${currentViewingGroup.university}`;
+      document.getElementById('modal-view-schedule').textContent = `• ${currentViewingGroup.schedule}`;
+      document.getElementById('modal-view-desc').textContent = currentViewingGroup.description;
+      document.getElementById('modal-view-room').textContent = currentViewingGroup.meetingRoom || 'Live Collaboration Room';
+      document.getElementById('modal-view-member-count').textContent = currentViewingGroup.membersCount;
+
+      const topicsBox = document.getElementById('modal-view-topics');
+      topicsBox.innerHTML = (currentViewingGroup.topics || []).map(t => `<span class="topic-tag">${t}</span>`).join('');
+
+      // Events list
+      const eventsBox = document.getElementById('modal-view-events-list');
+      if (!currentViewingGroup.events || currentViewingGroup.events.length === 0) {
+        eventsBox.innerHTML = '<p style="font-size: 12px; color: #64748b; font-style: italic;">No upcoming mentored workshops currently scheduled for this circle.</p>';
+      } else {
+        eventsBox.innerHTML = currentViewingGroup.events.map(ev => `
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <strong style="font-size: 13px; color: #0b1a30;">${ev.title}</strong>
+              <span style="font-size: 11px; color: #eb5757; font-weight: 700;">${ev.date} (${ev.time || '60m'})</span>
+            </div>
+            <p style="font-size: 12px; color: #64748b; margin-bottom: 4px;">${ev.description}</p>
+            <span style="font-size: 11px; color: #0284c7; font-weight: 600;">Link: ${ev.linkOrLocation}</span>
+          </div>
+        `).join('');
+      }
+
+      // Members list
+      const membersList = document.getElementById('modal-view-members-list');
+      membersList.innerHTML = (currentViewingGroup.members || []).map(m => `
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <div>
+            <span style="font-size: 13px; font-weight: 700; color: #0b1a30;">${m.name}</span>
+            <span style="font-size: 11px; color: #64748b; margin-left: 6px;">(${m.university || 'Student'})</span>
+          </div>
+          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: ${m.role === 'mentor' ? '#eb5757' : '#0284c7'};">
+            ${m.role}
+          </span>
+        </div>
+      `).join('');
+
+      const joinBtn = document.getElementById('btn-toggle-join-view');
+      joinBtn.textContent = currentViewingGroup.isJoined ? 'Leave Circle' : 'Join Study Group';
+      joinBtn.className = currentViewingGroup.isJoined ? 'btn-danger' : 'btn-primary';
+
+      openModal('view-group-modal');
+    }
+
+    document.getElementById('btn-close-view-modal')?.addEventListener('click', () => closeModal('view-group-modal'));
+    document.getElementById('btn-cancel-view')?.addEventListener('click', () => closeModal('view-group-modal'));
+    document.getElementById('btn-toggle-join-view')?.addEventListener('click', () => {
+      if (currentViewingGroup) {
+        handleJoinAction(currentViewingGroup.id);
+      }
+    });
+
+    // Modal: Create Group
+    document.getElementById('btn-open-create-modal')?.addEventListener('click', () => {
+      openModal('create-group-modal');
+    });
+    document.getElementById('btn-close-create-modal')?.addEventListener('click', () => {
+      closeModal('create-group-modal');
+    });
+    document.getElementById('btn-cancel-create')?.addEventListener('click', () => {
+      closeModal('create-group-modal');
+    });
+
+    const createForm = document.getElementById('create-group-form');
+    createForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('new-title').value.trim();
+      const subject = document.getElementById('new-subject').value.trim();
+      const category = document.getElementById('new-category').value;
+      const maxMembers = document.getElementById('new-max-members').value;
+      const schedule = document.getElementById('new-schedule').value.trim();
+      const topicsRaw = document.getElementById('new-topics').value.trim();
+      const description = document.getElementById('new-description').value.trim();
+
+      if (!title || !subject || !schedule || !description) {
+        showToast('Please fill out all required fields.', 'error');
+        return;
+      }
+
+      const topics = topicsRaw ? topicsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+      const created = createStudyGroup({
+        title,
+        subject,
+        category,
+        maxMembers,
+        schedule,
+        topics,
+        description
+      }, currentUser);
+
+      showToast(`Created "${created.title}" successfully!`, 'success');
+      createForm.reset();
+      closeModal('create-group-modal');
+      renderDashboardGroups();
+    });
+
+    // Modal: Mentor Manage Modal
+    function openMentorManageModal(groupId) {
+      const allGroups = getGroups();
+      currentManagingGroup = allGroups.find(g => g.id === groupId);
+      if (!currentManagingGroup) return;
+
+      document.getElementById('modal-mentor-title').textContent = `Manage "${currentManagingGroup.title}"`;
+
+      // Render roster with kick button
+      const rosterList = document.getElementById('mentor-roster-list');
+      rosterList.innerHTML = (currentManagingGroup.members || []).map(m => `
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px;">
+          <div>
+            <div style="font-size: 13px; font-weight: 700; color: #0b1a30;">${m.name}</div>
+            <div style="font-size: 11px; color: #64748b;">${m.email} • ${m.university || 'University'}</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: ${m.role === 'mentor' ? '#eb5757' : '#0284c7'};">
+              ${m.role}
+            </span>
+            ${m.role !== 'mentor' && m.id !== currentUser?.id ? `
+              <button type="button" class="btn-danger btn-kick-member" data-member-id="${m.id}" style="padding: 4px 10px; font-size: 11px;">
+                Remove
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      rosterList.querySelectorAll('.btn-kick-member').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const memberId = btn.getAttribute('data-member-id');
+          kickMemberFromGroup(currentManagingGroup.id, memberId);
+          showToast('Member removed from study circle.');
+          openMentorManageModal(currentManagingGroup.id);
+          renderDashboardGroups();
+        });
+      });
+
+      openModal('mentor-manage-modal');
+    }
+
+    document.getElementById('btn-close-mentor-modal')?.addEventListener('click', () => closeModal('mentor-manage-modal'));
+    document.getElementById('btn-close-mentor-footer')?.addEventListener('click', () => closeModal('mentor-manage-modal'));
+
+    // Add Workshop Form
+    const addEventForm = document.getElementById('add-event-form');
+    addEventForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!currentManagingGroup) return;
+
+      const title = document.getElementById('event-title').value.trim();
+      const date = document.getElementById('event-date').value.trim();
+      const duration = document.getElementById('event-duration').value.trim();
+      const room = document.getElementById('event-room').value.trim();
+      const desc = document.getElementById('event-desc').value.trim();
+
+      if (!title || !date) {
+        showToast('Please provide workshop title and date.', 'error');
+        return;
+      }
+
+      addEventToGroup(currentManagingGroup.id, {
+        title,
+        date,
+        time: duration || '60 mins',
+        linkOrLocation: room || 'Live Room #1',
+        description: desc || 'Hands-on guided sprint.'
+      });
+
+      showToast(`Workshop "${title}" scheduled successfully!`, 'success');
+      addEventForm.reset();
+      closeModal('mentor-manage-modal');
+      renderDashboardGroups();
+    });
+  </script>
+</body>
+</html>
