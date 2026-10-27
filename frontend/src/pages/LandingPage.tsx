@@ -167,7 +167,13 @@ export const LandingPage: React.FC = () => {
 
                     <button
                       type="button"
-                      onClick={handleExplore}
+                      onClick={() => {
+                        if (isAuthenticated) {
+                          navigate('/dashboard');
+                        } else {
+                          navigate(`/login?notice=join_group&title=${encodeURIComponent(group.title)}`);
+                        }
+                      }}
                       className="btn-primary"
                       style={{ padding: '6px 16px', fontSize: '13px' }}
                     >

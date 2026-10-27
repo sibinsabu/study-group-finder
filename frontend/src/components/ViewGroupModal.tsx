@@ -8,21 +8,31 @@ import {
   BookOpen,
   GraduationCap,
   CheckCircle2,
-  Tag
+  Tag,
+  Calendar,
+  Sparkles,
+  ShieldCheck,
+  Settings
 } from 'lucide-react';
 
 interface ViewGroupModalProps {
   group: StudyGroup | null;
   onClose: () => void;
   onToggleJoin?: (id: string) => void;
+  isMentor?: boolean;
+  onManageGroup?: (group: StudyGroup) => void;
 }
 
 export const ViewGroupModal: React.FC<ViewGroupModalProps> = ({
   group,
   onClose,
-  onToggleJoin
+  onToggleJoin,
+  isMentor,
+  onManageGroup
 }) => {
   if (!group) return null;
+
+  const events = group.events || [];
 
   return (
     <div
@@ -44,7 +54,7 @@ export const ViewGroupModal: React.FC<ViewGroupModalProps> = ({
           backgroundColor: '#ffffff',
           borderRadius: '24px',
           padding: '32px',
-          maxWidth: '560px',
+          maxWidth: '620px',
           width: '100%',
           boxShadow: '0 25px 50px -12px rgba(11, 26, 48, 0.25)',
           border: '1px solid #e2e8f0',
@@ -93,6 +103,23 @@ export const ViewGroupModal: React.FC<ViewGroupModalProps> = ({
             {group.category}
           </span>
 
+          {group.creatorRole === 'mentor' && (
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '4px 10px',
+              borderRadius: '9999px',
+              backgroundColor: '#eff6ff',
+              color: '#1d4ed8',
+              fontSize: '12px',
+              fontWeight: 700
+            }}>
+              <ShieldCheck size={13} color="#2563eb" />
+              Mentor Guided
+            </span>
+          )}
+
           {group.isJoined && (
             <span style={{
               display: 'inline-flex',
@@ -112,9 +139,29 @@ export const ViewGroupModal: React.FC<ViewGroupModalProps> = ({
         </div>
 
         {/* Group Title */}
-        <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0b1a30', lineHeight: 1.25, marginBottom: '8px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0b1a30', lineHeight: 1.25, marginBottom: '6px' }}>
           {group.title}
         </h2>
+
+        {/* Mentor / Host details */}
+        {group.creatorName && (
+          <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span>Created by:</span>
+            <strong style={{ color: '#0b1a30' }}>{group.creatorName}</strong>
+            {group.creatorRole === 'mentor' && (
+              <span style={{
+                fontSize: '11px',
+                padding: '1px 6px',
+                borderRadius: '4px',
+                backgroundColor: '#dbeafe',
+                color: '#1e40af',
+                fontWeight: 700
+              }}>
+                Verified Mentor
+              </span>
+            )}
+          </p>
+        )}
 
         {/* Course & University */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', color: '#64748b', fontSize: '13px', marginBottom: '18px', flexWrap: 'wrap' }}>
@@ -209,6 +256,83 @@ export const ViewGroupModal: React.FC<ViewGroupModalProps> = ({
           </div>
         )}
 
+        {/* Group Events & Workshops Section */}
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0b1a30', fontSize: '14px', fontWeight: 700 }}>
+              <Calendar size={16} color="#0284c7" />
+              <span>Mentor Workshops & Group Events</span>
+            </div>
+            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+              {events.length} {events.length === 1 ? 'event' : 'events'} scheduled
+            </span>
+          </div>
+
+          {events.length === 0 ? (
+            <div style={{
+              padding: '16px',
+              borderRadius: '12px',
+              backgroundColor: '#f8fafc',
+              border: '1px dashed #cbd5e1',
+              textAlign: 'center',
+              color: '#64748b',
+              fontSize: '13px'
+            }}>
+              No upcoming workshops announced yet. Check back soon for mentor sessions!
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {events.map((evt) => (
+                <div
+                  key={evt.id}
+                  style={{
+                    padding: '14px 16px',
+                    borderRadius: '14px',
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                    <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0b1a30', margin: 0 }}>
+                      {evt.title}
+                    </h4>
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '3px 8px',
+                      borderRadius: '6px',
+                      backgroundColor: '#eff6ff',
+                      color: '#1d4ed8',
+                      fontSize: '11px',
+                      fontWeight: 700
+                    }}>
+                      <Sparkles size={11} />
+                      Workshop
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '13px', color: '#475569', lineHeight: 1.5, marginBottom: '8px' }}>
+                    {evt.description}
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', fontSize: '12px', color: '#64748b', flexWrap: 'wrap' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600, color: '#0b1a30' }}>
+                      <Clock size={13} />
+                      {evt.date} • {evt.time}
+                    </span>
+                    {evt.linkOrLocation && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#0284c7' }}>
+                        <Video size={13} />
+                        {evt.linkOrLocation}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Member Capacity */}
         <div style={{
           display: 'flex',
@@ -232,7 +356,28 @@ export const ViewGroupModal: React.FC<ViewGroupModalProps> = ({
         </div>
 
         {/* Actions Row */}
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          {isMentor && onManageGroup && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onManageGroup(group);
+              }}
+              className="btn-primary"
+              style={{
+                padding: '12px 20px',
+                fontSize: '13px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Settings size={15} />
+              Manage Members & Workshops
+            </button>
+          )}
+
           {onToggleJoin && (
             <button
               type="button"
@@ -252,7 +397,8 @@ export const ViewGroupModal: React.FC<ViewGroupModalProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '6px',
-                transition: 'all 0.15s ease'
+                transition: 'all 0.15s ease',
+                minWidth: '180px'
               }}
             >
               {group.isJoined ? (
@@ -279,3 +425,4 @@ export const ViewGroupModal: React.FC<ViewGroupModalProps> = ({
     </div>
   );
 };
+

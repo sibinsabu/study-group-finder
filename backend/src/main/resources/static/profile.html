@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile | StudySphere</title>
+  <meta name="description" content="Manage your StudySphere student and mentor academic profile, university details, major, and study circles." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="grid-bg">
+    <div class="app-viewport">
+
+      <!-- Navigation Header -->
+      <header id="main-navbar"></header>
+
+      <!-- Profile Header / Banner -->
+      <header class="profile-hero" aria-label="Profile Details">
+        <div class="profile-avatar-row">
+          <img id="profile-display-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Profile Avatar" class="profile-big-avatar" />
+
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+              <h1 id="profile-display-name" style="font-size: 26px; font-weight: 900; color: #0b1a30; margin: 0;">Student Name</h1>
+              <span id="profile-role-badge" class="category-tag" style="background: var(--accent-coral-light); color: var(--accent-coral); font-weight: 800;">
+                STUDENT
+              </span>
+            </div>
+            <p id="profile-display-university" style="font-size: 14px; color: #64748b; font-weight: 600;">
+              University • Major
+            </p>
+          </div>
+
+          <div style="margin-left: auto; display: flex; gap: 10px;">
+            <button type="button" class="btn-danger" id="btn-profile-logout" style="padding: 8px 18px;">
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+        <!-- Avatar Selection Grid -->
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-light);">
+          <label class="form-label" style="margin-bottom: 8px;">Choose Your Profile Avatar</label>
+          <div class="avatar-grid" id="avatar-picker-grid">
+            <!-- 6 Options -->
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Profile Form Section -->
+      <main class="section-wrapper" style="padding-top: 36px;">
+        <div style="display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 36px;">
+
+          <!-- Left Column: Edit Form -->
+          <div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #0b1a30; margin-bottom: 18px;">
+              Academic Information & Preferences
+            </h2>
+
+            <form id="profile-edit-form" novalidate>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                  <label for="profile-name" class="form-label">Full Name</label>
+                  <div class="input-container">
+                    <input type="text" id="profile-name" required />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="profile-email" class="form-label">Email (Read-only)</label>
+                  <div class="input-container" style="background: #edf2f7;">
+                    <input type="email" id="profile-email" readonly disabled style="color: #64748b;" />
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px;">
+                <div class="form-group">
+                  <label for="profile-university" class="form-label">University / Institution</label>
+                  <div class="input-container">
+                    <input type="text" id="profile-university" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="profile-year" class="form-label">Academic Year</label>
+                  <div class="input-container">
+                    <select id="profile-year">
+                      <option value="Freshman">Freshman</option>
+                      <option value="Sophomore">Sophomore</option>
+                      <option value="Junior">Junior</option>
+                      <option value="Senior">Senior</option>
+                      <option value="Graduate Student">Graduate Student</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="profile-major" class="form-label">Field of Study / Major</label>
+                <div class="input-container">
+                  <input type="text" id="profile-major" placeholder="e.g. Computer Science & Applied Mathematics" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="profile-bio" class="form-label">Personal Bio & Study Goals</label>
+                <div class="input-container">
+                  <textarea id="profile-bio" rows="3" placeholder="Tell study group peers about your courses, strengths, and study habits..."></textarea>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="profile-interests" class="form-label">Core Interests / Subjects (comma separated)</label>
+                <div class="input-container">
+                  <input type="text" id="profile-interests" placeholder="e.g. Dynamic Programming, Calculus, Machine Learning, Retrosynthesis" />
+                </div>
+              </div>
+
+              <!-- Mentor Section if Mentor Role -->
+              <div id="mentor-profile-fields" style="display: none; background: #fff5f5; border: 1px dashed rgba(235, 87, 87, 0.4); border-radius: 12px; padding: 18px; margin-bottom: 20px;">
+                <h3 style="font-size: 14px; font-weight: 800; color: #eb5757; text-transform: uppercase; margin-bottom: 12px;">
+                  Academic Mentor Credentials
+                </h3>
+
+                <div class="form-group">
+                  <label for="profile-mentor-title" class="form-label">Mentor Title</label>
+                  <div class="input-container" style="background: #ffffff;">
+                    <input type="text" id="profile-mentor-title" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="profile-mentor-expertise" class="form-label">Expertise / Focus</label>
+                  <div class="input-container" style="background: #ffffff;">
+                    <input type="text" id="profile-mentor-expertise" />
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-primary" id="btn-save-profile" style="padding: 12px 28px;">
+                <span>Save Profile Changes</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+            </form>
+          </div>
+
+          <!-- Right Column: Enrolled Circles Quick Summary -->
+          <div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 18px; padding: 24px;">
+              <h3 style="font-size: 17px; font-weight: 800; color: #0b1a30; margin-bottom: 6px;">
+                My Study Circles
+              </h3>
+              <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">
+                Quick overview of circles you currently collaborate in:
+              </p>
+
+              <div id="profile-joined-circles-list" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Populated by JS -->
+              </div>
+
+              <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid #e2e8f0; text-align: center;">
+                <a href="dashboard.html" class="btn-outline" style="font-size: 13px; width: 100%; text-align: center;">
+                  Explore More Circles
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <div class="footer-bottom" style="border: none; padding-top: 0; justify-content: space-between;">
+          <span>&copy; 2026 StudySphere Platform. All rights reserved.</span>
+          <div style="display: flex; gap: 16px;">
+            <a href="dashboard.html" style="color: #94a3b8;">Dashboard</a>
+            <a href="my-groups.html" style="color: #94a3b8;">My Groups</a>
+            <a href="profile.html" style="color: #94a3b8;">Profile</a>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { initNavbar, showToast } from './js/app.js';
+    import { authService } from './js/auth.js';
+    import { getGroups } from './js/data.js';
+
+    if (!authService.requireAuth('login.html')) {
+      // Redirected
+    }
+
+    const currentUser = authService.getCurrentUser();
+    initNavbar('profile');
+
+    const AVATARS = [
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80'
+    ];
+
+    let selectedAvatar = currentUser.avatar || AVATARS[0];
+
+    // Populate header info
+    document.getElementById('profile-display-avatar').src = selectedAvatar;
+    document.getElementById('profile-display-name').textContent = currentUser.name;
+    document.getElementById('profile-display-university').textContent =
+      `${currentUser.university || 'University Student'} • ${currentUser.major || 'Computer Science'}`;
+
+    const roleBadge = document.getElementById('profile-role-badge');
+    roleBadge.textContent = currentUser.role === 'mentor' ? 'ACADEMIC MENTOR' : 'VERIFIED STUDENT';
+
+    // Populate form fields
+    document.getElementById('profile-name').value = currentUser.name || '';
+    document.getElementById('profile-email').value = currentUser.email || '';
+    document.getElementById('profile-university').value = currentUser.university || '';
+    document.getElementById('profile-year').value = currentUser.year || 'Junior';
+    document.getElementById('profile-major').value = currentUser.major || 'Computer Science & Engineering';
+    document.getElementById('profile-bio').value = currentUser.bio || 'Collaborative learner preparing for midterms and group sprints.';
+    document.getElementById('profile-interests').value = (currentUser.interests || ['Algorithms', 'Linear Algebra']).join(', ');
+
+    if (currentUser.role === 'mentor') {
+      const mentorFields = document.getElementById('mentor-profile-fields');
+      mentorFields.style.display = 'block';
+      document.getElementById('profile-mentor-title').value = currentUser.title || 'Senior Academic Mentor';
+      document.getElementById('profile-mentor-expertise').value = currentUser.expertise || 'Computer Science & Software Architecture';
+    }
+
+    // Render Avatar options
+    const avatarGrid = document.getElementById('avatar-picker-grid');
+    avatarGrid.innerHTML = AVATARS.map((url, idx) => `
+      <img src="${url}" alt="Avatar option ${idx + 1}" class="avatar-picker-item ${url === selectedAvatar ? 'selected' : ''}" data-avatar-url="${url}" />
+    `).join('');
+
+    avatarGrid.querySelectorAll('.avatar-picker-item').forEach(img => {
+      img.addEventListener('click', () => {
+        avatarGrid.querySelectorAll('.avatar-picker-item').forEach(i => i.classList.remove('selected'));
+        img.classList.add('selected');
+        selectedAvatar = img.getAttribute('data-avatar-url');
+        document.getElementById('profile-display-avatar').src = selectedAvatar;
+      });
+    });
+
+    // Populate Enrolled circles on side
+    const allGroups = getGroups();
+    const joined = allGroups.filter(g => g.isJoined);
+    const joinedContainer = document.getElementById('profile-joined-circles-list');
+    if (joined.length === 0) {
+      joinedContainer.innerHTML = '<p style="font-size: 13px; color: #64748b;">No active enrollments.</p>';
+    } else {
+      joinedContainer.innerHTML = joined.map(g => `
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <div style="font-size: 13px; font-weight: 700; color: #0b1a30;">${g.title}</div>
+            <div style="font-size: 11px; color: #64748b;">${g.schedule}</div>
+          </div>
+          <a href="dashboard.html" style="font-size: 12px; font-weight: 700; color: #0284c7;">View &rarr;</a>
+        </div>
+      `).join('');
+    }
+
+    // Save profile handler
+    const form = document.getElementById('profile-edit-form');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('profile-name').value.trim();
+      const university = document.getElementById('profile-university').value.trim();
+      const year = document.getElementById('profile-year').value;
+      const major = document.getElementById('profile-major').value.trim();
+      const bio = document.getElementById('profile-bio').value.trim();
+      const interestsRaw = document.getElementById('profile-interests').value.trim();
+      const interests = interestsRaw ? interestsRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+      const updates = {
+        name,
+        university,
+        year,
+        major,
+        bio,
+        interests,
+        avatar: selectedAvatar,
+      };
+
+      if (currentUser.role === 'mentor') {
+        updates.title = document.getElementById('profile-mentor-title').value.trim();
+        updates.expertise = document.getElementById('profile-mentor-expertise').value.trim();
+      }
+
+      authService.updateProfile(updates);
+
+      document.getElementById('profile-display-name').textContent = name;
+      document.getElementById('profile-display-university').textContent = `${university} • ${major}`;
+      showToast('Profile updated successfully!', 'success');
+    });
+
+    // Logout button handler
+    document.getElementById('btn-profile-logout')?.addEventListener('click', () => {
+      authService.logout();
+    });
+  </script>
+</body>
+</html>

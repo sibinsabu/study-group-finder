@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Study Circles | StudySphere</title>
+  <meta name="description" content="View your enrolled university study groups, upcoming midterm sprint meetings, and live collaboration rooms." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="grid-bg">
+    <div class="app-viewport">
+
+      <!-- Navigation Header -->
+      <header id="main-navbar"></header>
+
+      <!-- Page Header -->
+      <header class="dashboard-hero" aria-label="My Enrolled Circles">
+        <div class="dashboard-hero-content">
+          <div>
+            <div class="section-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+              <span>MY ACTIVE ENROLLMENTS</span>
+            </div>
+            <h1 style="font-size: 30px; font-weight: 900; color: #0b1a30; margin-bottom: 4px;">
+              My Enrolled Study Circles
+            </h1>
+            <p id="enrolled-subtitle" style="font-size: 14px; color: #64748b;">
+              Keep track of your weekly meeting times, virtual whiteboard rooms, and problem sprint topics.
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <a href="dashboard.html" class="btn-primary" id="btn-browse-more">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Find More Circles</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="stat-pills-row">
+          <div class="stat-pill-card">
+            <div class="stat-pill-icon navy">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div class="stat-pill-info">
+              <h4 id="stat-enrolled-count">2</h4>
+              <p>Active Circles</p>
+            </div>
+          </div>
+
+          <div class="stat-pill-card">
+            <div class="stat-pill-icon coral">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+            </div>
+            <div class="stat-pill-info">
+              <h4>Weekly</h4>
+              <p>Scheduled Meets</p>
+            </div>
+          </div>
+
+          <div class="stat-pill-card">
+            <div class="stat-pill-icon emerald">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+            </div>
+            <div class="stat-pill-info">
+              <h4 id="stat-workshops-enrolled">3</h4>
+              <p>Workshops</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Groups Content -->
+      <main class="section-wrapper" style="padding-top: 36px;">
+
+        <!-- Groups Grid -->
+        <div class="study-grid" id="my-groups-grid" aria-live="polite">
+          <!-- Dynamic Content -->
+        </div>
+
+        <!-- Empty State When No Groups Enrolled -->
+        <div id="no-groups-banner" style="display: none; text-align: center; padding: 60px 20px; background: #f8fafc; border-radius: 20px; border: 1px dashed #cbd5e1;">
+          <div style="width: 64px; height: 64px; border-radius: 50%; background: #edf2f7; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; color: #64748b;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          </div>
+          <h3 style="font-size: 20px; font-weight: 800; color: #0b1a30; margin-bottom: 8px;">No Active Study Circles</h3>
+          <p style="font-size: 14px; color: #64748b; max-width: 440px; margin: 0 auto 24px auto;">
+            You have not joined any study circles yet. Explore the campus catalog to connect with peers and mentors.
+          </p>
+          <a href="dashboard.html" class="btn-primary" style="padding: 10px 24px;">Browse Study Circles</a>
+        </div>
+
+      </main>
+
+      <!-- View Group Modal -->
+      <div class="modal-backdrop" id="view-group-modal" role="dialog" aria-modal="true" aria-labelledby="modal-view-title">
+        <div class="modal-card">
+          <div class="modal-header">
+            <div>
+              <span class="category-tag" id="modal-view-category">Category</span>
+              <h3 id="modal-view-title" style="margin-top: 6px;">Title</h3>
+            </div>
+            <button type="button" class="modal-close-btn" id="btn-close-view-modal" aria-label="Close modal">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <div style="display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
+              <span style="font-size: 13px; color: #0284c7; font-weight: 700;" id="modal-view-subject">Subject</span>
+              <span style="font-size: 13px; color: #64748b;" id="modal-view-university">• Stanford & MIT</span>
+              <span style="font-size: 13px; color: #64748b;" id="modal-view-schedule">• Schedule</span>
+            </div>
+
+            <p style="font-size: 14px; color: #334155; line-height: 1.6; margin-bottom: 20px;" id="modal-view-desc"></p>
+
+            <div style="margin-bottom: 20px;">
+              <h4 style="font-size: 14px; font-weight: 800; color: #0b1a30; margin-bottom: 8px;">Key Topics Covered</h4>
+              <div class="card-topics" id="modal-view-topics"></div>
+            </div>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+              <h4 style="font-size: 13px; font-weight: 800; color: #0b1a30; margin-bottom: 6px;">Meeting Location / Virtual Room</h4>
+              <p style="font-size: 13px; color: #0284c7; font-weight: 600;" id="modal-view-room">Live Zoom Room #1</p>
+            </div>
+
+            <!-- Scheduled Workshops -->
+            <div style="margin-bottom: 20px;">
+              <h4 style="font-size: 14px; font-weight: 800; color: #0b1a30; margin-bottom: 8px;">Upcoming Workshops & Sprints</h4>
+              <div id="modal-view-events-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            </div>
+
+            <div>
+              <h4 style="font-size: 14px; font-weight: 800; color: #0b1a30; margin-bottom: 10px;">Members (<span id="modal-view-member-count">4</span>)</h4>
+              <div id="modal-view-members-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="btn-cancel-view">Close</button>
+            <button type="button" class="btn-danger" id="btn-leave-from-modal">Leave Circle</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <div class="footer-bottom" style="border: none; padding-top: 0; justify-content: space-between;">
+          <span>&copy; 2026 StudySphere Platform. All rights reserved.</span>
+          <div style="display: flex; gap: 16px;">
+            <a href="dashboard.html" style="color: #94a3b8;">Explore</a>
+            <a href="my-groups.html" style="color: #94a3b8;">My Groups</a>
+            <a href="profile.html" style="color: #94a3b8;">Profile</a>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { initNavbar, openModal, closeModal, showToast } from './js/app.js';
+    import { authService } from './js/auth.js';
+    import { getGroups, toggleJoinGroup } from './js/data.js';
+
+    if (!authService.requireAuth('login.html')) {
+      // Redirect handled
+    }
+
+    const currentUser = authService.getCurrentUser();
+    initNavbar('my-groups');
+
+    let currentViewingGroup = null;
+
+    const grid = document.getElementById('my-groups-grid');
+    const emptyBanner = document.getElementById('no-groups-banner');
+
+    function renderMyGroups() {
+      const allGroups = getGroups();
+      const enrolled = allGroups.filter(g => g.isJoined);
+
+      document.getElementById('stat-enrolled-count').textContent = enrolled.length;
+      const workshopCount = enrolled.reduce((acc, g) => acc + (g.events?.length || 0), 0);
+      document.getElementById('stat-workshops-enrolled').textContent = workshopCount;
+
+      if (enrolled.length === 0) {
+        grid.style.display = 'none';
+        emptyBanner.style.display = 'block';
+        return;
+      }
+
+      grid.style.display = 'grid';
+      emptyBanner.style.display = 'none';
+
+      grid.innerHTML = enrolled.map(group => `
+        <article class="study-card" id="card-${group.id}">
+          <div>
+            <div class="card-top">
+              <span class="category-tag">${group.category}</span>
+              <span class="schedule-pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 12 16"></polyline></svg>
+                ${group.schedule}
+              </span>
+            </div>
+
+            <h3 class="card-title" data-view-id="${group.id}">${group.title}</h3>
+            <p class="card-subject">${group.subject} • ${group.university}</p>
+            <p class="card-desc">${group.description}</p>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-size: 12px; font-weight: 700; color: #0b1a30;">Live Study Room</span>
+              <button type="button" class="btn-play btn-enter-room" data-room="${group.meetingRoom || 'Live Room #1'}" style="padding: 2px 8px; font-size: 12px; color: #0284c7;">
+                Launch Room &rarr;
+              </button>
+            </div>
+
+            <div class="card-topics">
+              ${(group.topics || []).map(t => `<span class="topic-tag">${t}</span>`).join('')}
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <span class="members-indicator">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              ${group.membersCount}/${group.maxMembers} Members
+            </span>
+
+            <div class="card-btn-group">
+              <button type="button" class="btn-secondary" data-view-id="${group.id}" style="padding: 6px 12px; font-size: 12px;">
+                View
+              </button>
+              <button type="button" class="btn-danger" data-leave-id="${group.id}" style="padding: 6px 14px; font-size: 12px;">
+                Leave
+              </button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+
+      // Attach View Handlers
+      grid.querySelectorAll('[data-view-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-view-id');
+          openViewModal(id);
+        });
+      });
+
+      // Attach Leave Handlers
+      grid.querySelectorAll('[data-leave-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-leave-id');
+          handleLeave(id);
+        });
+      });
+
+      // Attach Launch Room Handlers
+      grid.querySelectorAll('.btn-enter-room').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const room = btn.getAttribute('data-room');
+          showToast(`Joining ${room}... Virtual whiteboard active!`, 'success');
+        });
+      });
+    }
+
+    renderMyGroups();
+
+    function handleLeave(groupId) {
+      const all = getGroups();
+      const grp = all.find(g => g.id === groupId);
+      if (confirm(`Are you sure you want to leave study circle "${grp ? grp.title : ''}"?`)) {
+        toggleJoinGroup(groupId, currentUser);
+        showToast('Successfully left circle.');
+        renderMyGroups();
+        if (currentViewingGroup && currentViewingGroup.id === groupId) {
+          closeModal('view-group-modal');
+        }
+      }
+    }
+
+    function openViewModal(groupId) {
+      const allGroups = getGroups();
+      currentViewingGroup = allGroups.find(g => g.id === groupId);
+      if (!currentViewingGroup) return;
+
+      document.getElementById('modal-view-category').textContent = currentViewingGroup.category;
+      document.getElementById('modal-view-title').textContent = currentViewingGroup.title;
+      document.getElementById('modal-view-subject').textContent = currentViewingGroup.subject;
+      document.getElementById('modal-view-university').textContent = `• ${currentViewingGroup.university}`;
+      document.getElementById('modal-view-schedule').textContent = `• ${currentViewingGroup.schedule}`;
+      document.getElementById('modal-view-desc').textContent = currentViewingGroup.description;
+      document.getElementById('modal-view-room').textContent = currentViewingGroup.meetingRoom || 'Live Collaboration Room';
+      document.getElementById('modal-view-member-count').textContent = currentViewingGroup.membersCount;
+
+      const topicsBox = document.getElementById('modal-view-topics');
+      topicsBox.innerHTML = (currentViewingGroup.topics || []).map(t => `<span class="topic-tag">${t}</span>`).join('');
+
+      const eventsBox = document.getElementById('modal-view-events-list');
+      if (!currentViewingGroup.events || currentViewingGroup.events.length === 0) {
+        eventsBox.innerHTML = '<p style="font-size: 12px; color: #64748b; font-style: italic;">No scheduled workshops currently.</p>';
+      } else {
+        eventsBox.innerHTML = currentViewingGroup.events.map(ev => `
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <strong style="font-size: 13px; color: #0b1a30;">${ev.title}</strong>
+              <span style="font-size: 11px; color: #eb5757; font-weight: 700;">${ev.date}</span>
+            </div>
+            <p style="font-size: 12px; color: #64748b;">${ev.description}</p>
+          </div>
+        `).join('');
+      }
+
+      const membersList = document.getElementById('modal-view-members-list');
+      membersList.innerHTML = (currentViewingGroup.members || []).map(m => `
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <div>
+            <span style="font-size: 13px; font-weight: 700; color: #0b1a30;">${m.name}</span>
+            <span style="font-size: 11px; color: #64748b; margin-left: 6px;">(${m.university || 'Student'})</span>
+          </div>
+          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: ${m.role === 'mentor' ? '#eb5757' : '#0284c7'};">
+            ${m.role}
+          </span>
+        </div>
+      `).join('');
+
+      openModal('view-group-modal');
+    }
+
+    document.getElementById('btn-close-view-modal')?.addEventListener('click', () => closeModal('view-group-modal'));
+    document.getElementById('btn-cancel-view')?.addEventListener('click', () => closeModal('view-group-modal'));
+    document.getElementById('btn-leave-from-modal')?.addEventListener('click', () => {
+      if (currentViewingGroup) {
+        handleLeave(currentViewingGroup.id);
+      }
+    });
+  </script>
+</body>
+</html>

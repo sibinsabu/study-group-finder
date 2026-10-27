@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account | StudySphere - Peer Collaboration Platform</title>
+  <meta name="description" content="Register your verified university student or mentor account on StudySphere. Join study circles, collaborate on exams, and connect with peers." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="grid-bg">
+    <div class="app-viewport">
+
+      <!-- Navigation Header -->
+      <header id="main-navbar"></header>
+
+      <!-- Main Register Section -->
+      <main class="auth-wrapper">
+        <section class="auth-container" aria-labelledby="register-heading">
+
+          <!-- Left Brand Panel -->
+          <aside class="auth-brand-side">
+            <div>
+              <div class="auth-brand-logo">S</div>
+              <h3>STUDYSPHERE</h3>
+              <p>Accelerate your academic journey with vetted peers, midterm sprint circles, and graduate mentors.</p>
+            </div>
+
+            <div style="width: 100%; border-top: 1px solid var(--border-medium); padding-top: 18px; margin-top: 24px;">
+              <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">Already registered?</p>
+              <a href="login.html" class="btn-outline" style="font-size: 13px; padding: 7px 18px; width: 100%; text-align: center;">
+                Sign In to Account
+              </a>
+            </div>
+          </aside>
+
+          <!-- Right Form Panel -->
+          <div class="auth-form-side">
+            <div class="auth-header">
+              <h1 id="register-heading">Create Account</h1>
+              <p>Join StudySphere as a student or register as an academic mentor.</p>
+            </div>
+
+            <!-- Role Selector: Student vs Mentor -->
+            <div class="role-toggle-bar">
+              <span class="role-badge-text" id="role-status-text">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                <span>Student Account</span>
+              </span>
+
+              <div class="role-btn-group">
+                <button type="button" class="role-btn active student" id="role-btn-student">Student</button>
+                <button type="button" class="role-btn" id="role-btn-mentor">Mentor / TA</button>
+              </div>
+            </div>
+
+            <!-- Dynamic Alert Message -->
+            <div id="auth-alert" class="alert-banner" style="display: none;"></div>
+
+            <!-- Registration Form -->
+            <form id="register-form" novalidate>
+              <div class="form-group">
+                <label for="register-name" class="form-label">Full Name</label>
+                <div class="input-container">
+                  <span class="input-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  </span>
+                  <input type="text" id="register-name" required placeholder="e.g. Alex Johnson" autocomplete="name" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="register-email" class="form-label">University Email</label>
+                <div class="input-container">
+                  <span class="input-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                  </span>
+                  <input type="email" id="register-email" required placeholder="alex@stanford.edu" autocomplete="email" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="register-university" class="form-label">University / College</label>
+                <div class="input-container">
+                  <span class="input-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 7v1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7H3l2-4h14l2 4z"></path></svg>
+                  </span>
+                  <input type="text" id="register-university" placeholder="e.g. Stanford University" />
+                </div>
+              </div>
+
+              <!-- Mentor Extra Fields (Hidden by default, shown when mentor role active) -->
+              <div id="mentor-extra-fields" style="display: none; background: #fff5f5; border: 1px dashed rgba(235, 87, 87, 0.4); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+                <div style="font-size: 12px; font-weight: 800; color: #eb5757; text-transform: uppercase; margin-bottom: 10px;">
+                  Academic Mentor Credentials
+                </div>
+
+                <div class="form-group">
+                  <label for="mentor-title" class="form-label">Academic Title / Position</label>
+                  <div class="input-container" style="background: #ffffff;">
+                    <select id="mentor-title">
+                      <option value="Senior Academic Mentor">Senior Academic Mentor</option>
+                      <option value="Graduate Teaching Assistant (TA)">Graduate Teaching Assistant (TA)</option>
+                      <option value="Undergraduate Course TA">Undergraduate Course TA</option>
+                      <option value="Department Academic Mentor">Department Academic Mentor</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label for="mentor-expertise" class="form-label">Primary Area of Expertise</label>
+                  <div class="input-container" style="background: #ffffff;">
+                    <input type="text" id="mentor-expertise" placeholder="e.g. Data Structures & Algorithms, Calculus III" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="register-password" class="form-label">Password (min. 6 characters)</label>
+                <div class="input-container">
+                  <span class="input-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  </span>
+                  <input type="password" id="register-password" required minlength="6" placeholder="Create a secure password" autocomplete="new-password" />
+                  <button type="button" class="password-toggle-btn" id="btn-toggle-reg-pass" aria-label="Toggle password visibility">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="register-confirm-password" class="form-label">Confirm Password</label>
+                <div class="input-container">
+                  <span class="input-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  </span>
+                  <input type="password" id="register-confirm-password" required minlength="6" placeholder="Re-enter your password" autocomplete="new-password" />
+                </div>
+              </div>
+
+              <button type="submit" id="btn-submit-register" class="btn-primary" style="width: 100%; padding: 12px; font-size: 15px; margin-top: 8px;">
+                <span>Create StudySphere Account</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 24px; font-size: 13px; color: var(--text-muted);">
+              By creating an account, you agree to the University Honor Code & StudySphere Terms.
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <div class="footer-bottom" style="border: none; padding-top: 0; justify-content: center; gap: 20px;">
+          <span>&copy; 2026 StudySphere. HTML5 & CSS3 Interface.</span>
+          <a href="index.html" style="color: #94a3b8;">Home</a>
+          <a href="login.html" style="color: #94a3b8;">Sign In</a>
+          <a href="dashboard.html" style="color: #94a3b8;">Dashboard</a>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { initNavbar, showToast } from './js/app.js';
+    import { authService } from './js/auth.js';
+
+    initNavbar('register');
+
+    // Parse URL params for prefill
+    const urlParams = new URLSearchParams(window.location.search);
+    let selectedRole = urlParams.get('role') === 'mentor' ? 'mentor' : 'student';
+
+    const roleBtnStudent = document.getElementById('role-btn-student');
+    const roleBtnMentor = document.getElementById('role-btn-mentor');
+    const roleStatusText = document.getElementById('role-status-text');
+    const mentorExtraFields = document.getElementById('mentor-extra-fields');
+
+    if (urlParams.get('email')) {
+      const emailInput = document.getElementById('register-email');
+      if (emailInput) emailInput.value = decodeURIComponent(urlParams.get('email'));
+    }
+
+    function updateRoleUI() {
+      if (selectedRole === 'mentor') {
+        roleBtnMentor.className = 'role-btn active mentor';
+        roleBtnStudent.className = 'role-btn';
+        mentorExtraFields.style.display = 'block';
+        roleStatusText.innerHTML = `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#eb5757" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+          <span style="color: #eb5757;">Academic Mentor Account</span>
+        `;
+      } else {
+        roleBtnStudent.className = 'role-btn active student';
+        roleBtnMentor.className = 'role-btn';
+        mentorExtraFields.style.display = 'none';
+        roleStatusText.innerHTML = `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+          <span>Student Account</span>
+        `;
+      }
+    }
+
+    roleBtnStudent.addEventListener('click', () => {
+      selectedRole = 'student';
+      updateRoleUI();
+    });
+
+    roleBtnMentor.addEventListener('click', () => {
+      selectedRole = 'mentor';
+      updateRoleUI();
+    });
+
+    // Password visibility toggle
+    const passInput = document.getElementById('register-password');
+    const toggleBtn = document.getElementById('btn-toggle-reg-pass');
+    toggleBtn.addEventListener('click', () => {
+      const isPass = passInput.type === 'password';
+      passInput.type = isPass ? 'text' : 'password';
+      toggleBtn.innerHTML = isPass ?
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>' :
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+    });
+
+    // Form submit validation and submission
+    const form = document.getElementById('register-form');
+    const alertBox = document.getElementById('auth-alert');
+
+    function showAlert(msg, type = 'error', htmlContent = '') {
+      alertBox.className = `alert-banner ${type}`;
+      if (htmlContent) {
+        alertBox.innerHTML = htmlContent;
+      } else {
+        alertBox.textContent = msg;
+      }
+      alertBox.style.display = 'flex';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const name = document.getElementById('register-name').value.trim();
+      const email = document.getElementById('register-email').value.trim();
+      const university = document.getElementById('register-university').value.trim();
+      const password = passInput.value;
+      const confirmPassword = document.getElementById('register-confirm-password').value;
+
+      if (!name) {
+        showAlert('Please enter your full name.');
+        return;
+      }
+      if (!email) {
+        showAlert('Please enter your university email.');
+        return;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showAlert('Please enter a valid university email address.');
+        return;
+      }
+      if (!password || password.length < 6) {
+        showAlert('Password must be at least 6 characters long.');
+        return;
+      }
+      if (password !== confirmPassword) {
+        showAlert('Passwords do not match. Please re-enter your password.');
+        return;
+      }
+
+      const submitBtn = document.getElementById('btn-submit-register');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Creating account...</span>';
+
+      const payload = {
+        name,
+        email,
+        university: university || 'State University',
+        password,
+        confirmPassword,
+        role: selectedRole,
+        title: selectedRole === 'mentor' ? document.getElementById('mentor-title').value : undefined,
+        expertise: selectedRole === 'mentor' ? document.getElementById('mentor-expertise').value.trim() : undefined,
+      };
+
+      try {
+        const result = await authService.register(payload);
+        if (result.success) {
+          showAlert(result.message || 'Account created! Redirecting to dashboard...', 'success');
+          showToast(`Welcome to StudySphere, ${name.split(' ')[0]}!`, 'success');
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 600);
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>Create StudySphere Account</span>';
+
+          const isDuplicate = (result.message || '').toLowerCase().includes('already exists');
+          if (isDuplicate) {
+            showAlert(
+              result.message,
+              'error',
+              `<div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                <span>${result.message}</span>
+                <div>
+                  <a href="login.html?email=${encodeURIComponent(email)}&role=${selectedRole}" class="btn-primary" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 13px; text-decoration: none; border-radius: 6px;">
+                    <span>Sign In Here</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </a>
+                </div>
+              </div>`
+            );
+          } else {
+            showAlert(result.message || 'Registration failed. Please check your information and try again.');
+          }
+        }
+      } catch (err) {
+        showAlert('Error communicating with backend registration service.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Create StudySphere Account</span>';
+      }
+    });
+  </script>
+</body>
+</html>

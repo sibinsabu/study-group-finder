@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, CheckCircle2, ArrowRight, User as UserIcon, AlertCircle, X, Info } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, CheckCircle2, ArrowRight, User as UserIcon, AlertCircle, X, Info, GraduationCap, Award, BookOpen } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface AuthCardProps {
@@ -16,10 +16,15 @@ export const AuthCard: React.FC<AuthCardProps> = ({
   const { login, register } = useAuth();
 
   const [isRegisterMode, setIsRegisterMode] = useState(initialMode === 'register');
+  const [selectedRole, setSelectedRole] = useState<'student' | 'mentor'>('student');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [university, setUniversity] = useState('');
+  const [mentorTitle, setMentorTitle] = useState('Senior Peer Mentor');
+  const [mentorExpertise, setMentorExpertise] = useState('Computer Science & Data Structures');
+  const [mentorExperienceYears, setMentorExperienceYears] = useState(2);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,14 +35,57 @@ export const AuthCard: React.FC<AuthCardProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
 
-    if (isRegisterMode && password !== confirmPassword) {
+    // Phase 3 Client-Side JavaScript Validation: Empty fields & Format checks
+    if (!email.trim()) {
       setStatusMessage({
         type: 'error',
-        text: 'Passwords do not match. Please re-enter your password correctly.'
+        text: 'Email address is required and cannot be blank.'
       });
       return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setStatusMessage({
+        type: 'error',
+        text: 'Please enter a valid email address format (e.g. student@university.edu).'
+      });
+      return;
+    }
+
+    if (!password) {
+      setStatusMessage({
+        type: 'error',
+        text: 'Password cannot be empty.'
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      setStatusMessage({
+        type: 'error',
+        text: 'Password must be at least 6 characters in length.'
+      });
+      return;
+    }
+
+    if (isRegisterMode) {
+      if (!name.trim()) {
+        setStatusMessage({
+          type: 'error',
+          text: 'Full Name cannot be blank.'
+        });
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setStatusMessage({
+          type: 'error',
+          text: 'Passwords do not match. Please re-enter your password correctly.'
+        });
+        return;
+      }
     }
 
     setIsLoading(true);
@@ -45,8 +93,24 @@ export const AuthCard: React.FC<AuthCardProps> = ({
 
     try {
       if (isRegisterMode) {
-        // Register flow -> MongoDB
-        const res = await register(name || 'Student', email, password);
+        // Register flow -> MongoDB with Student or Mentor role
+        const mentorExtra = selectedRole === 'mentor' ? {
+          role: 'mentor' as const,
+          title: mentorTitle.trim() || 'Senior Academic Mentor',
+          expertise: mentorExpertise.trim() || 'Computer Science & Software Architecture',
+          experienceYears: Number(mentorExperienceYears) || 2,
+        } : {
+          role: 'student' as const,
+        };
+
+        const res = await register(
+          name || (selectedRole === 'mentor' ? 'Academic Mentor' : 'Student'),
+          email,
+          password,
+          university,
+          mentorExtra
+        );
+
         if (res.success) {
           setStatusMessage({
             type: 'success',
@@ -63,8 +127,8 @@ export const AuthCard: React.FC<AuthCardProps> = ({
           setIsLoading(false);
         }
       } else {
-        // Login flow -> MongoDB
-        const res = await login(email, password);
+        // Login flow -> MongoDB with selected role check
+        const res = await login(email, password, selectedRole);
         if (res.success) {
           setStatusMessage({
             type: 'success',
@@ -246,7 +310,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
             background: '#f1f5f9',
             padding: '4px',
             borderRadius: '10px',
-            marginBottom: '20px',
+            marginBottom: '14px',
             gap: '4px'
           }}>
             <button
@@ -298,6 +362,100 @@ export const AuthCard: React.FC<AuthCardProps> = ({
               Register
             </button>
           </div>
+
+          {/* Role Switcher Pill: Student vs Mentor */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: selectedRole === 'mentor' ? 'rgba(235, 87, 87, 0.08)' : '#f8fafc',
+            border: selectedRole === 'mentor' ? '1px solid rgba(235, 87, 87, 0.3)' : '1px solid #e2e8f0',
+            borderRadius: '12px',
+            padding: '6px 10px',
+            marginBottom: '16px',
+            transition: 'all 0.2s'
+          }}>
+            <span style={{
+              fontSize: '12px',
+              fontWeight: 700,
+              color: selectedRole === 'mentor' ? '#eb5757' : '#475569',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              {selectedRole === 'mentor' ? <Award size={15} color="#eb5757" /> : <GraduationCap size={15} color="#475569" />}
+              <span>{selectedRole === 'mentor' ? 'Academic Mentor Portal' : 'Student Portal'}</span>
+            </span>
+
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedRole('student');
+                  setStatusMessage(null);
+                }}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  backgroundColor: selectedRole === 'student' ? '#0b1a30' : 'transparent',
+                  color: selectedRole === 'student' ? '#ffffff' : '#64748b',
+                  boxShadow: selectedRole === 'student' ? '0 2px 6px rgba(11,26,48,0.2)' : 'none'
+                }}
+              >
+                Student
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedRole('mentor');
+                  setStatusMessage(null);
+                }}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  backgroundColor: selectedRole === 'mentor' ? '#eb5757' : 'transparent',
+                  color: selectedRole === 'mentor' ? '#ffffff' : '#64748b',
+                  boxShadow: selectedRole === 'mentor' ? '0 2px 6px rgba(235,87,87,0.3)' : 'none'
+                }}
+              >
+                Mentor / TA
+              </button>
+            </div>
+          </div>
+
+          {/* Mentor Active Alert Notice */}
+          {selectedRole === 'mentor' && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              background: 'rgba(235, 87, 87, 0.08)',
+              border: '1px dashed rgba(235, 87, 87, 0.4)',
+              borderRadius: '8px',
+              fontSize: '12px',
+              color: '#991b1b',
+              fontWeight: 600,
+              marginBottom: '14px'
+            }}>
+              <Award size={14} color="#eb5757" />
+              <span>
+                {isRegisterMode
+                  ? 'Registering as an Academic Mentor or Teaching Assistant.'
+                  : 'Logging in to Verified Mentor Portal.'}
+              </span>
+            </div>
+          )}
 
           {statusMessage && (
             <div style={{
@@ -403,6 +561,171 @@ export const AuthCard: React.FC<AuthCardProps> = ({
                 />
               </div>
             </div>
+
+            {/* University / Institution Name (Registration) */}
+            {isRegisterMode && (
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: '#334155',
+                  marginBottom: '6px'
+                }}>
+                  University / College Name
+                </label>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: '#f8fafc',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '10px',
+                  padding: '10px 14px'
+                }}>
+                  <GraduationCap size={16} color="#64748b" style={{ marginRight: '10px', flexShrink: 0 }} />
+                  <input
+                    type="text"
+                    placeholder="e.g. State University of Technology"
+                    value={university}
+                    onChange={(e) => setUniversity(e.target.value)}
+                    style={{
+                      border: 'none',
+                      background: 'transparent',
+                      width: '100%',
+                      fontSize: '14px',
+                      color: '#0f172a',
+                      outline: 'none',
+                      fontFamily: 'inherit'
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Mentor-Specific Fields (Title, Expertise, Experience) */}
+            {isRegisterMode && selectedRole === 'mentor' && (
+              <>
+                <div>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: '#334155',
+                    marginBottom: '6px'
+                  }}>
+                    Mentor Academic Title / Role
+                  </label>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: '#f8fafc',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    padding: '8px 12px'
+                  }}>
+                    <Award size={16} color="#eb5757" style={{ marginRight: '10px', flexShrink: 0 }} />
+                    <select
+                      value={mentorTitle}
+                      onChange={(e) => setMentorTitle(e.target.value)}
+                      style={{
+                        border: 'none',
+                        background: 'transparent',
+                        width: '100%',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: '#0f172a',
+                        outline: 'none',
+                        fontFamily: 'inherit',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <option value="Senior Peer Mentor">Senior Peer Mentor</option>
+                      <option value="Graduate Teaching Assistant (TA)">Graduate Teaching Assistant (TA)</option>
+                      <option value="Undergraduate Course TA">Undergraduate Course TA</option>
+                      <option value="Department Academic Mentor">Department Academic Mentor</option>
+                      <option value="Faculty Course Advisor">Faculty Course Advisor</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: '#334155',
+                    marginBottom: '6px'
+                  }}>
+                    Primary Area of Expertise / Subject
+                  </label>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: '#f8fafc',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    padding: '10px 14px'
+                  }}>
+                    <BookOpen size={16} color="#64748b" style={{ marginRight: '10px', flexShrink: 0 }} />
+                    <input
+                      type="text"
+                      placeholder="e.g. Computer Science, Data Structures, AI/ML"
+                      value={mentorExpertise}
+                      onChange={(e) => setMentorExpertise(e.target.value)}
+                      style={{
+                        border: 'none',
+                        background: 'transparent',
+                        width: '100%',
+                        fontSize: '14px',
+                        color: '#0f172a',
+                        outline: 'none',
+                        fontFamily: 'inherit'
+                      }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: '#334155',
+                    marginBottom: '6px'
+                  }}>
+                    Mentoring Experience (Years)
+                  </label>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: '#f8fafc',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    padding: '8px 12px'
+                  }}>
+                    <select
+                      value={mentorExperienceYears}
+                      onChange={(e) => setMentorExperienceYears(Number(e.target.value))}
+                      style={{
+                        border: 'none',
+                        background: 'transparent',
+                        width: '100%',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: '#0f172a',
+                        outline: 'none',
+                        fontFamily: 'inherit',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <option value={1}>1 Year of Mentoring / TA</option>
+                      <option value={2}>2 Years of Mentoring / TA</option>
+                      <option value={3}>3 Years of Mentoring / TA</option>
+                      <option value={5}>5+ Years of Mentoring / TA</option>
+                    </select>
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Password Input */}
             <div>
@@ -555,7 +878,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
                 marginTop: '6px',
                 width: '100%',
                 padding: '12px',
-                backgroundColor: '#0b1a30',
+                backgroundColor: selectedRole === 'mentor' ? '#eb5757' : '#0b1a30',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '10px',
@@ -563,7 +886,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
                 fontWeight: 600,
                 fontFamily: 'inherit',
                 cursor: isLoading ? 'not-allowed' : 'pointer',
-                boxShadow: '0 4px 12px rgba(11, 26, 48, 0.25)',
+                boxShadow: selectedRole === 'mentor' ? '0 4px 12px rgba(235, 87, 87, 0.3)' : '0 4px 12px rgba(11, 26, 48, 0.25)',
                 transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
@@ -572,21 +895,29 @@ export const AuthCard: React.FC<AuthCardProps> = ({
               }}
               onMouseOver={(e) => {
                 if (!isLoading) {
-                  e.currentTarget.style.backgroundColor = '#162b4c';
+                  e.currentTarget.style.backgroundColor = selectedRole === 'mentor' ? '#d32f2f' : '#162b4c';
                   e.currentTarget.style.transform = 'translateY(-1px)';
                 }
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = '#0b1a30';
+                e.currentTarget.style.backgroundColor = selectedRole === 'mentor' ? '#eb5757' : '#0b1a30';
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
               {isLoading ? (
-                'Connecting to MongoDB...'
+                'Authenticating with Backend...'
               ) : isRegisterMode ? (
-                <>Register & Go to Dashboard <ArrowRight size={16} /></>
+                selectedRole === 'mentor' ? (
+                  <>Register as Academic Mentor <ArrowRight size={16} /></>
+                ) : (
+                  <>Register Student Account <ArrowRight size={16} /></>
+                )
               ) : (
-                <>Sign In <ArrowRight size={16} /></>
+                selectedRole === 'mentor' ? (
+                  <>Sign In as Mentor <ArrowRight size={16} /></>
+                ) : (
+                  <>Sign In to Dashboard <ArrowRight size={16} /></>
+                )
               )}
             </button>
 

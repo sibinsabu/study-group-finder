@@ -3,14 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { FindGroupPanel } from '../components/FindGroupPanel';
 import { ViewGroupModal } from '../components/ViewGroupModal';
+import { MentorManageModal } from '../components/MentorManageModal';
 import { useAuth } from '../context/AuthContext';
-import type { StudyGroup } from '../data/mockData';
+import type { StudyGroup, GroupEvent } from '../data/mockData';
 import { INITIAL_STUDY_GROUPS } from '../data/mockData';
-import { Clock, Plus, Users, X, Sparkles, CheckCircle2, Eye } from 'lucide-react';
+import {
+  Clock,
+  Plus,
+  Users,
+  X,
+  Sparkles,
+  CheckCircle2,
+  Eye,
+  Settings,
+  ShieldCheck,
+  Crown
+} from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isMentor } = useAuth();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -21,6 +33,9 @@ export const DashboardPage: React.FC = () => {
 
   // Selected Group for "View Group" modal
   const [viewingGroup, setViewingGroup] = useState<StudyGroup | null>(null);
+
+  // Selected Group for "Mentor Manage" modal
+  const [managingGroup, setManagingGroup] = useState<StudyGroup | null>(null);
 
   // Modal State for Create Group
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -49,7 +64,7 @@ export const DashboardPage: React.FC = () => {
             Session Required
           </h2>
           <p style={{ color: '#64748b', marginBottom: '24px', fontSize: '14px' }}>
-            Please log in or register to access the student dashboard.
+            Please log in or register to access the dashboard.
           </p>
           <button
             type="button"
@@ -64,33 +79,137 @@ export const DashboardPage: React.FC = () => {
     );
   }
 
-  // Toggle Join
+  // Toggle Join (Students or Mentors joining a group)
   const handleToggleJoin = (id: string) => {
     const updated = groups.map(g => {
       if (g.id === id) {
         const isJoined = !g.isJoined;
+        let newMembers = g.members ? [...g.members] : [];
+        if (isJoined) {
+          const alreadyIn = newMembers.some(m => m.id === user.id || m.email === user.email);
+          if (!alreadyIn) {
+            newMembers.push({
+              id: user.id || `u-${Date.now()}`,
+              name: user.name,
+              email: user.email,
+              role: (user.role as 'student' | 'mentor') || 'student',
+              joinedAt: 'Just now',
+              university: user.university
+            });
+          }
+        } else {
+          newMembers = newMembers.filter(m => m.id !== user.id && m.email !== user.email);
+        }
+
         return {
           ...g,
           isJoined,
-          membersCount: isJoined ? g.membersCount + 1 : Math.max(1, g.membersCount - 1)
+          members: newMembers,
+          membersCount: isJoined ? (g.membersCount + 1) : Math.max(1, g.membersCount - 1)
         };
       }
       return g;
     });
+
     setGroups(updated);
     localStorage.setItem('studysphere_groups', JSON.stringify(updated));
 
-    // Also update currently open modal if any
+    // Also update currently open modals if any
     if (viewingGroup && viewingGroup.id === id) {
-      setViewingGroup(prev => prev ? {
-        ...prev,
-        isJoined: !prev.isJoined,
-        membersCount: !prev.isJoined ? prev.membersCount + 1 : Math.max(1, prev.membersCount - 1)
-      } : null);
+      const cur = updated.find(g => g.id === id) || null;
+      setViewingGroup(cur);
+    }
+    if (managingGroup && managingGroup.id === id) {
+      const cur = updated.find(g => g.id === id) || null;
+      setManagingGroup(cur);
     }
   };
 
-  // Create New Group
+  // Kick / Remove Member from Group (Mentor Feature)
+  const handleKickMember = (groupId: string, memberId: string) => {
+    const updated = groups.map(g => {
+      if (g.id === groupId) {
+        const remainingMembers = (g.members || []).filter(m => m.id !== memberId);
+        return {
+          ...g,
+          members: remainingMembers,
+          membersCount: Math.max(1, remainingMembers.length)
+        };
+      }
+      return g;
+    });
+
+    setGroups(updated);
+    localStorage.setItem('studysphere_groups', JSON.stringify(updated));
+
+    if (managingGroup && managingGroup.id === groupId) {
+      const cur = updated.find(g => g.id === groupId) || null;
+      setManagingGroup(cur);
+    }
+    if (viewingGroup && viewingGroup.id === groupId) {
+      const cur = updated.find(g => g.id === groupId) || null;
+      setViewingGroup(cur);
+    }
+  };
+
+  // Add Workshop / Event to Group (Mentor Feature)
+  const handleAddEvent = (groupId: string, eventData: Omit<GroupEvent, 'id'>) => {
+    const newEvent: GroupEvent = {
+      id: `evt-${Date.now()}`,
+      ...eventData
+    };
+
+    const updated = groups.map(g => {
+      if (g.id === groupId) {
+        const existingEvents = g.events || [];
+        return {
+          ...g,
+          events: [...existingEvents, newEvent]
+        };
+      }
+      return g;
+    });
+
+    setGroups(updated);
+    localStorage.setItem('studysphere_groups', JSON.stringify(updated));
+
+    if (managingGroup && managingGroup.id === groupId) {
+      const cur = updated.find(g => g.id === groupId) || null;
+      setManagingGroup(cur);
+    }
+    if (viewingGroup && viewingGroup.id === groupId) {
+      const cur = updated.find(g => g.id === groupId) || null;
+      setViewingGroup(cur);
+    }
+  };
+
+  // Delete Workshop / Event (Mentor Feature)
+  const handleDeleteEvent = (groupId: string, eventId: string) => {
+    const updated = groups.map(g => {
+      if (g.id === groupId) {
+        const remainingEvents = (g.events || []).filter(e => e.id !== eventId);
+        return {
+          ...g,
+          events: remainingEvents
+        };
+      }
+      return g;
+    });
+
+    setGroups(updated);
+    localStorage.setItem('studysphere_groups', JSON.stringify(updated));
+
+    if (managingGroup && managingGroup.id === groupId) {
+      const cur = updated.find(g => g.id === groupId) || null;
+      setManagingGroup(cur);
+    }
+    if (viewingGroup && viewingGroup.id === groupId) {
+      const cur = updated.find(g => g.id === groupId) || null;
+      setViewingGroup(cur);
+    }
+  };
+
+  // Create New Group (Mentor or Student)
   const handleCreateGroup = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newSubject.trim()) return;
@@ -104,10 +223,24 @@ export const DashboardPage: React.FC = () => {
       schedule: newSchedule,
       membersCount: 1,
       maxMembers: Number(newMaxMembers) || 6,
-      description: newDescription.trim() || 'Collaborative course study group.',
+      description: newDescription.trim() || (isMentor ? 'Official mentor-guided collaborative study circle.' : 'Collaborative course study group.'),
       isJoined: true,
       topics: ['Course Fundamentals', 'Midterm Prep', 'Homework Discussions'],
-      meetingRoom: 'Room #Live (Online Virtual Room)'
+      meetingRoom: 'Room #Live (Online Virtual Room)',
+      createdBy: user.id || user.email,
+      creatorName: user.name,
+      creatorRole: isMentor ? 'mentor' : 'student',
+      members: [
+        {
+          id: user.id || `u-${Date.now()}`,
+          name: user.name,
+          email: user.email,
+          role: isMentor ? 'mentor' : 'student',
+          joinedAt: 'Group Creator & Host',
+          university: user.university
+        }
+      ],
+      events: []
     };
 
     const updated = [newGroup, ...groups];
@@ -146,7 +279,9 @@ export const DashboardPage: React.FC = () => {
         {/* Dashboard Welcome Header */}
         <section style={{
           padding: '36px 48px',
-          background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)',
+          background: isMentor
+            ? 'linear-gradient(180deg, #f0fdf4 0%, #f8fafc 100%)'
+            : 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)',
           borderBottom: '1px solid #e2e8f0',
           position: 'relative'
         }}>
@@ -162,21 +297,25 @@ export const DashboardPage: React.FC = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                color: '#eb5757',
+                color: isMentor ? '#059669' : '#eb5757',
                 fontWeight: 700,
                 fontSize: '12px',
                 letterSpacing: '0.8px',
                 textTransform: 'uppercase',
                 marginBottom: '8px'
               }}>
-                <Sparkles size={14} />
-                <span>STUDENT DASHBOARD • {user.university}</span>
+                {isMentor ? <Crown size={15} color="#059669" /> : <Sparkles size={14} />}
+                <span>
+                  {isMentor ? 'MENTOR & INSTRUCTOR DASHBOARD' : 'STUDENT DASHBOARD'} • {user.university}
+                </span>
               </div>
               <h1 style={{ fontSize: '32px', fontWeight: 800, color: '#0b1a30', marginBottom: '6px' }}>
-                Welcome back, {user.name}! 👋
+                Welcome back, {user.name}! {isMentor ? '🎓' : '👋'}
               </h1>
               <p style={{ fontSize: '14px', color: '#64748b' }}>
-                Find and collaborate with peers in your course study groups.
+                {isMentor
+                  ? 'Manage your communities, monitor enrolled students, kick inactive members, and organize workshops.'
+                  : 'Find and collaborate with peers in your course study groups.'}
               </p>
             </div>
 
@@ -184,10 +323,15 @@ export const DashboardPage: React.FC = () => {
               type="button"
               onClick={() => setCreateModalOpen(true)}
               className="btn-primary"
-              style={{ padding: '10px 22px', fontSize: '14px' }}
+              style={{
+                padding: '10px 22px',
+                fontSize: '14px',
+                backgroundColor: isMentor ? '#059669' : undefined,
+                borderColor: isMentor ? '#059669' : undefined
+              }}
             >
               <Plus size={16} />
-              Create Study Group
+              {isMentor ? 'Create Mentor Group' : 'Create Study Group'}
             </button>
           </div>
         </section>
@@ -227,109 +371,185 @@ export const DashboardPage: React.FC = () => {
             gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
             gap: '20px'
           }}>
-            {filteredGroups.map((group) => (
-              <div key={group.id} className="study-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <span style={{
-                    padding: '4px 10px',
-                    borderRadius: '9999px',
-                    backgroundColor: '#f1f5f9',
-                    color: '#0b1a30',
-                    fontSize: '12px',
-                    fontWeight: 700
-                  }}>
-                    {group.category}
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#64748b' }}>
-                    <Clock size={13} />
-                    {group.schedule}
-                  </span>
-                </div>
+            {filteredGroups.map((group) => {
+              const isCreatorOrLead = isMentor && (
+                group.createdBy === user.id ||
+                group.createdBy === user.email ||
+                group.creatorName === user.name ||
+                group.creatorRole === 'mentor' ||
+                !group.createdBy
+              );
 
-                <h3
-                  onClick={() => setViewingGroup(group)}
-                  style={{
-                    fontSize: '17px',
-                    fontWeight: 700,
-                    color: '#0b1a30',
-                    marginBottom: '4px',
-                    cursor: 'pointer'
-                  }}
-                  onMouseOver={(e) => (e.currentTarget.style.color = '#0284c7')}
-                  onMouseOut={(e) => (e.currentTarget.style.color = '#0b1a30')}
-                >
-                  {group.title}
-                </h3>
-                <p style={{ fontSize: '13px', color: '#0284c7', fontWeight: 600, marginBottom: '8px' }}>
-                  {group.subject} • {group.university}
-                </p>
-                <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.5, marginBottom: '16px', minHeight: '38px' }}>
-                  {group.description}
-                </p>
-
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingTop: '14px',
-                  borderTop: '1px solid #f1f5f9',
-                  gap: '8px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
-                    <Users size={15} />
-                    <span>{group.membersCount}/{group.maxMembers}</span>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <button
-                      type="button"
-                      onClick={() => setViewingGroup(group)}
-                      className="btn-outline"
-                      style={{
-                        padding: '6px 12px',
-                        fontSize: '12px',
+              return (
+                <div key={group.id} className="study-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{
+                        padding: '4px 10px',
                         borderRadius: '9999px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                    >
-                      <Eye size={13} />
-                      View
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleToggleJoin(group.id)}
-                      style={{
-                        padding: '6px 16px',
-                        borderRadius: '9999px',
+                        backgroundColor: '#f1f5f9',
+                        color: '#0b1a30',
                         fontSize: '12px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        border: '1px solid',
-                        borderColor: group.isJoined ? '#10b981' : '#0b1a30',
-                        backgroundColor: group.isJoined ? '#ecfdf5' : '#0b1a30',
-                        color: group.isJoined ? '#065f46' : '#ffffff',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      {group.isJoined ? (
-                        <>
-                          <CheckCircle2 size={13} color="#10b981" />
-                          <span>Joined</span>
-                        </>
-                      ) : (
-                        'Join'
+                        fontWeight: 700
+                      }}>
+                        {group.category}
+                      </span>
+
+                      {group.creatorRole === 'mentor' && (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '3px',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          backgroundColor: '#eff6ff',
+                          color: '#1d4ed8',
+                          fontSize: '11px',
+                          fontWeight: 700
+                        }}>
+                          <ShieldCheck size={11} />
+                          Mentor
+                        </span>
                       )}
-                    </button>
+
+                      {(group.createdBy === user.id || group.createdBy === user.email || group.creatorName === user.name) && (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '3px',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          backgroundColor: '#fef3c7',
+                          color: '#92400e',
+                          fontSize: '11px',
+                          fontWeight: 700
+                        }}>
+                          <Crown size={11} />
+                          Yours
+                        </span>
+                      )}
+                    </div>
+
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#64748b' }}>
+                      <Clock size={13} />
+                      {group.schedule}
+                    </span>
+                  </div>
+
+                  <h3
+                    onClick={() => setViewingGroup(group)}
+                    style={{
+                      fontSize: '17px',
+                      fontWeight: 700,
+                      color: '#0b1a30',
+                      marginBottom: '4px',
+                      cursor: 'pointer'
+                    }}
+                    onMouseOver={(e) => (e.currentTarget.style.color = '#0284c7')}
+                    onMouseOut={(e) => (e.currentTarget.style.color = '#0b1a30')}
+                  >
+                    {group.title}
+                  </h3>
+                  <p style={{ fontSize: '13px', color: '#0284c7', fontWeight: 600, marginBottom: '8px' }}>
+                    {group.subject} • {group.university}
+                  </p>
+                  <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.5, marginBottom: '16px', minHeight: '38px' }}>
+                    {group.description}
+                  </p>
+
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingTop: '14px',
+                    borderTop: '1px solid #f1f5f9',
+                    gap: '8px',
+                    flexWrap: 'wrap'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+                      <Users size={15} />
+                      <span>{group.membersCount}/{group.maxMembers}</span>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setViewingGroup(group)}
+                        className="btn-outline"
+                        style={{
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          borderRadius: '9999px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        <Eye size={13} />
+                        View
+                      </button>
+
+                      {/* Mentor Manage Action */}
+                      {isCreatorOrLead && (
+                        <button
+                          type="button"
+                          onClick={() => setManagingGroup(group)}
+                          style={{
+                            padding: '6px 14px',
+                            borderRadius: '9999px',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            border: '1px solid #059669',
+                            backgroundColor: '#ecfdf5',
+                            color: '#065f46',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <Settings size={13} />
+                          Manage
+                        </button>
+                      )}
+
+                      {/* Join / Leave toggle */}
+                      {!isCreatorOrLead && (
+                        <button
+                          type="button"
+                          onClick={() => handleToggleJoin(group.id)}
+                          style={{
+                            padding: '6px 16px',
+                            borderRadius: '9999px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            border: '1px solid',
+                            borderColor: group.isJoined ? '#10b981' : '#0b1a30',
+                            backgroundColor: group.isJoined ? '#ecfdf5' : '#0b1a30',
+                            color: group.isJoined ? '#065f46' : '#ffffff',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          {group.isJoined ? (
+                            <>
+                              <CheckCircle2 size={13} color="#10b981" />
+                              <span>Joined</span>
+                            </>
+                          ) : (
+                            'Join'
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
@@ -338,7 +558,22 @@ export const DashboardPage: React.FC = () => {
           group={viewingGroup}
           onClose={() => setViewingGroup(null)}
           onToggleJoin={handleToggleJoin}
+          isMentor={isMentor}
+          onManageGroup={(g) => {
+            setViewingGroup(null);
+            setManagingGroup(g);
+          }}
         />
+
+        {/* Modal: Mentor Group Management (Kick Members, Create Workshops/Events) */}
+        <MentorManageModal
+          group={managingGroup}
+          onClose={() => setManagingGroup(null)}
+          onKickMember={handleKickMember}
+          onAddEvent={handleAddEvent}
+          onDeleteEvent={handleDeleteEvent}
+        />
+
 
         {/* Modal: Create Study Group */}
         {createModalOpen && (

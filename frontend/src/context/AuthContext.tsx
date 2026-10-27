@@ -9,11 +9,21 @@ export type User = UserDto & {
   interests?: string[];
 };
 
+export interface MentorExtraData {
+  role?: 'student' | 'mentor';
+  expertise?: string;
+  title?: string;
+  bio?: string;
+  experienceYears?: number;
+  linkedInOrWebsite?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, pass: string) => Promise<AuthResponse>;
-  register: (name: string, email: string, pass: string, university?: string) => Promise<AuthResponse>;
+  isMentor: boolean;
+  login: (email: string, pass: string, role?: 'student' | 'mentor') => Promise<AuthResponse>;
+  register: (name: string, email: string, pass: string, university?: string, mentorData?: MentorExtraData) => Promise<AuthResponse>;
   logout: () => void;
   updateProfile: (updatedData: Partial<User>) => void;
   joinGroup: (groupId: string) => Promise<void>;
@@ -40,23 +50,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user]);
 
-  const login = async (email: string, pass: string): Promise<AuthResponse> => {
-    const response = await authApi.login({ email, password: pass });
+  const login = async (email: string, pass: string, role?: 'student' | 'mentor'): Promise<AuthResponse> => {
+    const response = await authApi.login({ email, password: pass, role });
     if (response.success && response.user) {
       setUser(response.user);
     }
     return response;
   };
 
-  const register = async (name: string, email: string, pass: string, university?: string): Promise<AuthResponse> => {
-    const response = await authApi.register({ name, email, password: pass, university });
+  const register = async (
+    name: string,
+    email: string,
+    pass: string,
+    university?: string,
+    mentorData?: MentorExtraData
+  ): Promise<AuthResponse> => {
+    const payload = {
+      name,
+      email,
+      password: pass,
+      university,
+      role: mentorData?.role || 'student',
+      expertise: mentorData?.expertise,
+      title: mentorData?.title,
+      bio: mentorData?.bio,
+      experienceYears: mentorData?.experienceYears,
+      linkedInOrWebsite: mentorData?.linkedInOrWebsite,
+    };
+    const response = await authApi.register(payload);
     if (response.success && response.user) {
       setUser(response.user);
     }
     return response;
   };
 
-  const logout = () => {
+  useEffect(() => {
+    // Phase 4: Synchronize with backend HttpSession if available
+    authApi.getSession().then((res) => {
+      if (res.success && res.user) {
+        setUser((prev) => prev ? { ...prev, ...res.user } : res.user as User);
+      }
+    });
+  }, []);
+
+  const logout = async () => {
+    try {
+      await authApi.logout();
+    } catch {
+      // Invalidate locally regardless
+    }
     setUser(null);
     localStorage.removeItem('study_user');
   };
@@ -90,6 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider value={{
       user,
       isAuthenticated: !!user,
+      isMentor: user?.role === 'mentor',
       login,
       register,
       logout,

@@ -1,7 +1,5 @@
 package com.app.studygroup.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,10 +11,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginRequest {
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    // Supports both email and username as input identifier
     private String email;
+    private String username;
 
-    @NotBlank(message = "Password is required")
     private String password;
+
+    private String role; // Optional: "student" or "mentor"
+
+    public String getEffectiveIdentifier() {
+        if (email != null && !email.isBlank()) {
+            return email.trim();
+        }
+        if (username != null && !username.isBlank()) {
+            return username.trim();
+        }
+        return "";
+    }
 }

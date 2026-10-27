@@ -8,6 +8,13 @@ export interface UserDto {
   email: string;
   university: string;
   avatar: string;
+  role?: 'student' | 'mentor';
+  expertise?: string;
+  title?: string;
+  bio?: string;
+  experienceYears?: number;
+  linkedInOrWebsite?: string;
+  rating?: number;
   joinedGroups: string[];
   createdAt?: string;
 }
@@ -23,11 +30,18 @@ export interface RegisterPayload {
   email: string;
   password: string;
   university?: string;
+  role?: 'student' | 'mentor';
+  expertise?: string;
+  title?: string;
+  bio?: string;
+  experienceYears?: number;
+  linkedInOrWebsite?: string;
 }
 
 export interface LoginPayload {
   email: string;
   password: string;
+  role?: 'student' | 'mentor';
 }
 
 const apiClient = axios.create({
@@ -42,7 +56,8 @@ const apiClient = axios.create({
 export const authApi = {
   async register(payload: RegisterPayload): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/register', payload);
+      const endpoint = payload.role === 'mentor' ? '/auth/mentor/register' : '/auth/register';
+      const response = await apiClient.post<AuthResponse>(endpoint, payload);
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.message) {
@@ -62,7 +77,8 @@ export const authApi = {
 
   async login(payload: LoginPayload): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/login', payload);
+      const endpoint = payload.role === 'mentor' ? '/auth/mentor/login' : '/auth/login';
+      const response = await apiClient.post<AuthResponse>(endpoint, payload);
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.message) {
@@ -80,6 +96,14 @@ export const authApi = {
     }
   },
 
+  async mentorRegister(payload: Omit<RegisterPayload, 'role'>): Promise<AuthResponse> {
+    return this.register({ ...payload, role: 'mentor' });
+  },
+
+  async mentorLogin(payload: Omit<LoginPayload, 'role'>): Promise<AuthResponse> {
+    return this.login({ ...payload, role: 'mentor' });
+  },
+
   async getUser(id: string): Promise<UserDto | null> {
     try {
       const response = await apiClient.get<UserDto>(`/auth/user/${id}`);
@@ -95,6 +119,23 @@ export const authApi = {
       return response.data;
     } catch {
       return null;
+    }
+  },
+
+  async getSession(): Promise<AuthResponse> {
+    try {
+      const response = await apiClient.get<AuthResponse>('/auth/session');
+      return response.data;
+    } catch {
+      return { success: false, message: 'No active session', user: null };
+    }
+  },
+
+  async logout(): Promise<void> {
+    try {
+      await apiClient.post('/auth/logout');
+    } catch {
+      // Ignore network errors on logout
     }
   },
 };
